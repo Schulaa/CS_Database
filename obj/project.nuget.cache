@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "NM4g0fdxsXeB0cnCkEYgnSN9e28fCg8V5oeZpZqk7pcIruUiuvhbAZFwHPNegS4P7RpElNvYsw9Za8Z+laoqrA==",
+  "success": true,
+  "projectFilePath": "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\simon.schuler\\.nuget\\packages\\litedb\\5.0.8\\litedb.5.0.8.nupkg.sha512"
+  ],
+  "logs": []
+}
