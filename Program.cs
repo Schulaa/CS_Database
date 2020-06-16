@@ -27,6 +27,8 @@ namespace Datenbank
                 // Console.WriteLine(item.id + " " + item.firstName + " " + item.lastName);
             // }
 
+            DBCon.GetDataSet(new Person());
+
             Application.Run(new Form1());
 
           

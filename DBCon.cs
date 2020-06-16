@@ -45,7 +45,44 @@ namespace Datenbank
             }
         }
 
-        public static DataSet getDataSet()
+
+        public static DataSet GetDataSet(DBObject dBObject, string filter = "")
+        {
+            DataSet retVal = new DataSet();
+            DataTable table;
+            DataColumn[] PrimaryKeyCols = new DataColumn[1];
+            List<DataColumn> column1 = new List<DataColumn>();
+            List<DataRow> row = new List<DataRow>();
+            using (var db = new LiteDatabase(dbName))
+            {
+                if (dBObject is Person)
+                {
+                    var col = db.GetCollection<Person>(Person.CollectionName);
+                    var data = col.FindAll();
+                    table = new DataTable(Person.CollectionName);
+
+                    foreach (ColumnInfo ci in Person.columnInfos)
+                    {
+                        DataColumn dmyCol = new DataColumn();
+                        dmyCol.DataType = ci.colType;
+                        dmyCol.ColumnName = ci.name;
+                        if (ci.name.Equals("ID"))
+                        {
+                            dmyCol.Unique = true;
+                            //set primary key col:
+                            PrimaryKeyCols[0] = table.Columns[ci.name];
+                            table.PrimaryKey = PrimaryKeyCols;
+                        }
+                        
+                    }
+                    table.Columns.AddRange(Person.dataColumns);
+                }
+
+            }
+
+            return retVal;
+        }
+        public static DataSet getDataSetPerson()
         {
             DataSet retVal = new DataSet();
             DataTable dt = new DataTable("person");
@@ -87,7 +124,7 @@ namespace Datenbank
 
             //insert data:
             List<DBObject> lst = new List<DBObject>();
-            readDb(new Person(),lst);
+            readDb(new Person(), lst);
             foreach (Person p in lst)
             {
                 dr = dt.NewRow();
