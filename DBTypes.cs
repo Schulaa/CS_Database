@@ -3,37 +3,29 @@ using System.Data;
 
 namespace Datenbank
 {
-    class ColumnInfo
-    {
+    // class ColumnInfo
+    // {
 
-        public string name;
-        public Type colType;
+    //     public string name;
+    //     public Type colType;
 
-        public ColumnInfo(string name, Type colType)
-        {
-            this.name = name;
-            this.colType = colType;
-        }
-    }
+    //     public ColumnInfo(string name, Type colType)
+    //     {
+    //         this.name = name;
+    //         this.colType = colType;
+    //     }
+    // }
     interface DBObject
     {
-        static string CollectionName { get; }
-        static ColumnInfo[] columnInfos { get; }
-        static DataColumn[] dataColumns { get; }
+        public static string CollectionName { get; }
+        // public static ColumnInfo[] columnInfos { get; }
+        public static DataColumn[] dataColumns { get; }
+        public DataRow getAsRow(DataRow row);
 
     }
     class Person : DBObject
     {
-        // public Person() {
-        //     id = 999;
-        //     firstName = "dmy";
-        //     lastName = "dmy";
-        //     city = "";
-        //     postcode ="";
-        //     address = "";
-        //     memberType = type.Left;
-        //     pmtType = paymentType.None;
-        // }
+
         public int id { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
@@ -42,20 +34,6 @@ namespace Datenbank
         public string address { get; set; }
         public type memberType { get; set; }
         public paymentType pmtType { get; set; }
-        public enum type
-        {
-            Active,
-            Passive,
-            Honor,
-            Left
-
-        }
-        public enum paymentType
-        {
-            None,
-            SEPA,
-            Cash
-        }
         public DateTime birthday { get; set; }
         public DateTime entryDate { get; set; }
         public DateTime leftDate { get; set; }
@@ -135,6 +113,44 @@ namespace Datenbank
                     }
                     
             };
+        }
+        
+        public enum type
+        {
+            Active,
+            Passive,
+            Honor,
+            Left
+
+        }
+        public enum paymentType
+        {
+            None,
+            SEPA,
+            Cash
+        }
+
+        public DataRow getAsRow(DataRow row)
+        {
+            object[] data = {this.id,
+                            this.firstName,
+                            this.lastName,
+                            this.city,
+                            this.postcode,
+                            this.address,
+                            this.memberType,
+                            this.pmtType,
+                            this.birthday,
+                            this.entryDate,
+                            this.leftDate,
+                            this.comment
+                            };
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                row[dataColumns[i].ColumnName] = data[i];
+            }
+            return row;
         }
     }
 }

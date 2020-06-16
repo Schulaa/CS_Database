@@ -51,31 +51,37 @@ namespace Datenbank
             DataSet retVal = new DataSet();
             DataTable table;
             DataColumn[] PrimaryKeyCols = new DataColumn[1];
-            List<DataColumn> column1 = new List<DataColumn>();
-            List<DataRow> row = new List<DataRow>();
+            DataRow row;
             using (var db = new LiteDatabase(dbName))
             {
                 if (dBObject is Person)
                 {
-                    var col = db.GetCollection<Person>(Person.CollectionName);
-                    var data = col.FindAll();
                     table = new DataTable(Person.CollectionName);
 
-                    foreach (ColumnInfo ci in Person.columnInfos)
-                    {
-                        DataColumn dmyCol = new DataColumn();
-                        dmyCol.DataType = ci.colType;
-                        dmyCol.ColumnName = ci.name;
-                        if (ci.name.Equals("ID"))
-                        {
-                            dmyCol.Unique = true;
-                            //set primary key col:
-                            PrimaryKeyCols[0] = table.Columns[ci.name];
-                            table.PrimaryKey = PrimaryKeyCols;
-                        }
-                        
-                    }
                     table.Columns.AddRange(Person.dataColumns);
+
+                    foreach (DataColumn dmyDc in Person.dataColumns)
+                    {
+                        if (dmyDc.Unique)
+                        {
+                            PrimaryKeyCols[0] = table.Columns[dmyDc.ColumnName];
+                            table.PrimaryKey = PrimaryKeyCols;
+                            break;
+                        }
+                    }
+                    retVal.Tables.Add(table);
+
+                    if (filter == "")
+                    {
+                        var col = db.GetCollection<Person>(Person.CollectionName);
+                        var data = col.FindAll();
+                        foreach (Person person in data)
+                        {
+                            row = table.NewRow();
+                            person.getAsRow(row);
+                            table.Rows.Add(row);
+                        }
+                    }
                 }
 
             }

@@ -20,10 +20,9 @@ namespace Datenbank
 
     private void createGridView() {
         DataGridView dgv = new DataGridView();
-        // dgv.DataSource = DBCon.getDataSet();
-        dgv.DataMember = "person";
-        
-        dgv.SetBounds(10,10,300,200);
+        dgv.DataSource = DBCon.GetDataSet(new Person());
+        dgv.DataMember = Person.CollectionName;
+        dgv.SetBounds(10,10,this.Width,this.Height);
         this.Controls.Add(dgv);
     }
     }
