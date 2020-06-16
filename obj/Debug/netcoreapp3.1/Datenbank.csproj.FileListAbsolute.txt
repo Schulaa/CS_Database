@@ -11,3 +11,5 @@ C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Da
 C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Datenbank\obj\Debug\netcoreapp3.1\Datenbank.dll
 C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Datenbank\obj\Debug\netcoreapp3.1\Datenbank.pdb
 C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Datenbank\obj\Debug\netcoreapp3.1\Datenbank.genruntimeconfig.cache
+C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Datenbank\bin\Debug\netcoreapp3.1\LiteDB.dll
+C:\Users\simon.schuler\OneDrive - KUMAVISION AG\Praxis\Projekte\C#\Verwaltung\Datenbank\obj\Debug\netcoreapp3.1\Datenbank.csproj.CopyComplete

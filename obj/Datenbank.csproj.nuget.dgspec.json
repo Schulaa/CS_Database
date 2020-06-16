@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj": {}
+    "C:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj": {}
   },
   "projects": {
-    "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj": {
+    "C:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj",
+        "projectUniqueName": "C:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj",
         "projectName": "Datenbank",
-        "projectPath": "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj",
+        "projectPath": "C:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\Datenbank.csproj",
         "packagesPath": "C:\\Users\\simon.schuler\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\obj\\",
+        "outputPath": "C:\\Users\\simon.schuler\\OneDrive - KUMAVISION AG\\Praxis\\Projekte\\C#\\Verwaltung\\Datenbank\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\simon.schuler\\AppData\\Roaming\\NuGet\\NuGet.Config"
