@@ -15,32 +15,9 @@ namespace Datenbank
         public Form1()
         {
             InitializeComponent();
-            // CreateListView();
             createGridView();
         }
 
-        private void CreateListView() {
-            ListView lv = new ListView();
-            lv.Bounds = new Rectangle(new Point(10,10), new Size(300,200));
-            // lv.View = View.Details;
-            lv.AllowColumnReorder = true;
-            // lv.GridLines = true;
-            lv.Sorting = SortOrder.Ascending;
-            List<DBObject> people = new List<DBObject>();
-            DBCon.readDb(new Person(),people);
-            Console.WriteLine(people.Count);
-            ListViewItem[] items = new ListViewItem[people.Count];
-            for (int i = 0; i < people.Count; i++)
-            {
-                Person dmy = (Person) people[i];
-                items[i] = new ListViewItem(dmy.firstName);
-                items[i].SubItems.Add(dmy.lastName);
-                
-            }
-            lv.Items.AddRange(items);
-
-            this.Controls.Add(lv);
-        }
     private void createGridView() {
         DataGridView dgv = new DataGridView();
         dgv.DataSource = DBCon.getDataSet();
