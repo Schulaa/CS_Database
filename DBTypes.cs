@@ -42,23 +42,6 @@ namespace Datenbank
         {
             get => "person";
         }
-        // public static ColumnInfo[] columnInfos
-        // {
-        //     get => new ColumnInfo[] {
-        //         new ColumnInfo("ID",typeof(int)),
-        //         new ColumnInfo("Vorname",typeof(string)),
-        //         new ColumnInfo("Nachname",typeof(string)),
-        //         new ColumnInfo("Ort",typeof(string)),
-        //         new ColumnInfo("PLZ",typeof(string)),
-        //         new ColumnInfo("Adresse",typeof(string)),
-        //         new ColumnInfo("Art",typeof(Person.type)),
-        //         new ColumnInfo("Zahlungsart",typeof(Person.paymentType)),
-        //         new ColumnInfo("Geburtsdatum",typeof(DateTime)),
-        //         new ColumnInfo("Eintrittsdatum",typeof(DateTime)),
-        //         new ColumnInfo("Austrittsdatum",typeof(DateTime)),
-        //         new ColumnInfo("Bemerkung",typeof(string)),
-        //     };
-        // }
         public static DataColumn[] dataColumns
         {
             get => new DataColumn[]{
@@ -111,10 +94,10 @@ namespace Datenbank
                     DataType = typeof(string),
                     ColumnName = "Bemerkung",
                     }
-                    
+
             };
         }
-        
+
         public enum type
         {
             Active,
@@ -151,6 +134,54 @@ namespace Datenbank
                 row[dataColumns[i].ColumnName] = data[i];
             }
             return row;
+        }
+    }
+
+    class SecurityObject : DBObject
+    {
+        public SecurityObject(string pwd)
+        {
+            this.password = pwd;
+        }
+        public string password {get;set;}
+        public static string CollectionName
+        {
+            get => "security";
+        }
+        public static DataColumn[] dataColumns
+        {
+            get => new DataColumn[]{
+                new DataColumn {
+                    DataType = typeof(string),
+                    ColumnName = "Password",
+                    Unique = true,
+                    }
+            };
+        }
+
+        DataRow DBObject.getAsRow(DataRow row)
+        {
+            row[dataColumns[0].ColumnName] = this.password;
+            return row;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SecurityObject)
+            {
+                SecurityObject so = (SecurityObject)obj;
+                
+                if (so.password == this.password)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(password);
         }
     }
 }

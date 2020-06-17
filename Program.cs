@@ -24,13 +24,30 @@ namespace Datenbank
             // DBCon.readDb(new Person(), persons);
             // foreach (Person item in persons)
             // {
-                // Console.WriteLine(item.id + " " + item.firstName + " " + item.lastName);
+            // Console.WriteLine(item.id + " " + item.firstName + " " + item.lastName);
             // }
-
-
-            Application.Run(new Form1());
-
-          
+            bool tryAgain = true;
+            while (tryAgain)
+            {
+                if (new SecurityForm().ShowDialog() == DialogResult.OK)
+                {
+                    tryAgain = false;
+                    Application.Run(new Form1());
+                }
+                else
+                {
+                    if (System.Windows.Forms.MessageBox.Show("Passwort falsch!\nErneut versuchen?", "Fehler", MessageBoxButtons.RetryCancel,
+                        MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false) == DialogResult.Retry)
+                    {
+                        tryAgain = true;
+                    }
+                    else
+                    {
+                        tryAgain = false;
+                        Application.Exit();
+                    }
+                }
+            }
         }
     }
 }

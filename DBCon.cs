@@ -17,15 +17,15 @@ namespace Datenbank
         {
             using(var db = new LiteDatabase(dbSec))
             {
-                var rec = db.GetCollection<string>("Security");
+                var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
                 if(rec.Count() == 0)
                 {
                     throw new IndexOutOfRangeException("No PW set");
                 } else {
                     
-                    List<string> recs = new List<string>(rec.FindAll());
-
-                    if (recs[0] == entry) {
+                    List<SecurityObject> recs = new List<SecurityObject>(rec.FindAll());
+                    
+                    if (recs[0].Equals(new SecurityObject(entry))) {
                         unlocked = true;
                     } else {
                         unlocked = false;
@@ -33,6 +33,17 @@ namespace Datenbank
                 }
             }
             return unlocked;
+        }
+
+        public static void setPassword(string pwd)
+        {
+            using(var db = new LiteDatabase(dbSec))
+            {
+                var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
+                rec.DeleteAll();
+                SecurityObject dmy = new SecurityObject(pwd);
+                rec.Insert(dmy);
+            }
         }
         public static void writeToDb(DBObject bObject, mode bMode)
         {
