@@ -12,12 +12,33 @@ namespace Datenbank
 {
     public partial class Form1 : Form
     {
+        public WindowType state;
         public Form1()
         {
-
             InitializeComponent();
+            this.state = WindowType.Home;
             AddMenu();
             this.WindowState = FormWindowState.Maximized;
+            this.ClientSizeChanged += new EventHandler(onClientSizeChangedEvent);
+
+            void onClientSizeChangedEvent(object sender, EventArgs e)
+            {
+                switch (state)
+                {
+                    case WindowType.Home:
+                        resetView(ControlLists.indexPage(this));
+                        break;
+                    
+                    case WindowType.Ledger:
+                        resetView();
+                        break;
+                    
+                    case WindowType.Member:
+                        resetView();
+                        break;
+                }
+                
+            }
         }
         private void AddMenu()
         {
@@ -34,7 +55,9 @@ namespace Datenbank
             void ClickHomeBtn(Object sender, EventArgs e)
             {
                 //TODO
-                System.Windows.Forms.MessageBox.Show("Home clicked");
+                // System.Windows.Forms.MessageBox.Show("Home clicked");
+                this.state = WindowType.Home;
+                this.resetView(ControlLists.indexPage(this));
             }
 
             // ToolStripDropDownButton memberDropdown = new ToolStripDropDownButton("Mitglieder",);
@@ -44,7 +67,8 @@ namespace Datenbank
             void ClickMemberBtn(Object sender, EventArgs e)
             {
                 //TODO
-                System.Windows.Forms.MessageBox.Show("Member list clicked");
+                this.state = WindowType.Member;
+                this.resetView(ControlLists.memberPage(this));
             }
 
             // memberDropdown.DropDown.Items.Add(memberListBtn);
@@ -57,6 +81,7 @@ namespace Datenbank
             {
                 //TODO
                 System.Windows.Forms.MessageBox.Show("ledger clicked");
+                this.state = WindowType.Ledger;
             }
 
             menu.Items.Add(homeBtn);
@@ -70,29 +95,22 @@ namespace Datenbank
 
 
         }
-        private void createGridView()
+        private void resetView()
         {
-            DataGridView dgv = new DataGridView();
-            dgv.DataSource = DBCon.GetDataSet(new Person());
-            dgv.DataMember = Person.CollectionName;
-            dgv.SetBounds(10, 30, this.Width, this.Height);
-            this.Controls.Add(dgv);
+            this.Controls.Clear();
+            AddMenu();
         }
-
-        private void createMenu()
+        private void resetView(Control[] newCtrls)
         {
-            MenuStrip menuStrip = new MenuStrip();
-            ToolStripMenuItem fileItem = new ToolStripMenuItem("File");
-            menuStrip.Items.Add(fileItem);
-            this.MainMenuStrip = menuStrip;
-            this.Controls.Add(menuStrip);
+            resetView();
+            this.Controls.AddRange(newCtrls);
         }
     }
 
     public enum WindowType
     {
-        Init,
-        Blank,
-        Table
+        Home,
+        Member,
+        Ledger
     }
 }
