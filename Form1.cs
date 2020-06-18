@@ -34,7 +34,7 @@ namespace Datenbank
                         break;
                     
                     case WindowType.Member:
-                        resetView();
+                        resetView(ControlLists.memberPage(this));
                         break;
                 }
                 
@@ -44,6 +44,7 @@ namespace Datenbank
         {
             ToolStripButton homeBtn = new ToolStripButton("Home", Image.FromFile("./img/home.png"));
             MenuStrip menu = new MenuStrip();
+            menu.LayoutStyle = ToolStripLayoutStyle.Flow;
 
             // Image home = Image.FromFile("./img/home.png");
             // homeBtn.Image = home;

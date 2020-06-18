@@ -15,19 +15,24 @@ namespace Datenbank
 
         public static bool checkPassword(string entry)
         {
-            using(var db = new LiteDatabase(dbSec))
+            using (var db = new LiteDatabase(dbSec))
             {
                 var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
-                if(rec.Count() == 0)
+                if (rec.Count() == 0)
                 {
                     throw new IndexOutOfRangeException("No PW set");
-                } else {
-                    
+                }
+                else
+                {
+
                     List<SecurityObject> recs = new List<SecurityObject>(rec.FindAll());
-                    
-                    if (recs[0].Equals(new SecurityObject(entry))) {
+
+                    if (recs[0].Equals(new SecurityObject(entry)))
+                    {
                         unlocked = true;
-                    } else {
+                    }
+                    else
+                    {
                         unlocked = false;
                     }
                 }
@@ -37,7 +42,7 @@ namespace Datenbank
 
         public static void setPassword(string pwd)
         {
-            using(var db = new LiteDatabase(dbSec))
+            using (var db = new LiteDatabase(dbSec))
             {
                 var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
                 rec.DeleteAll();
@@ -64,11 +69,11 @@ namespace Datenbank
                 }
             }
         }
-        public static void readDb(DBObject bObject, List<DBObject> resultObjList, string filter = "")
+        public static void readDb(DBObject bObject, List<DBObject> resultObjList, string nameFilter = "")
         {
             using (var db = new LiteDatabase(dbName))
             {
-                if (filter == "")
+                if (nameFilter == "")
                 {
                     if (bObject is Person)
                     {
@@ -78,11 +83,26 @@ namespace Datenbank
                         return;
                     }
                 }
+                else
+                {
+                    if (bObject is Person)
+                    {
+                        var col = db.GetCollection<Person>(Person.CollectionName);
+                        col.EnsureIndex(x => x.firstName);
+                        var result = col.Query()
+                            .Where(x => x.firstName.Contains(nameFilter) || x.lastName.Contains(nameFilter))
+                            .ToList();
+
+                        resultObjList.AddRange(result);
+                        Console.WriteLine(resultObjList.Count);
+                        return;
+                    }
+                }
             }
         }
 
 
-        public static DataSet GetDataSet(DBObject dBObject, string filter = "")
+        public static DataSet GetDataSet(DBObject dBObject, string nameFilter = "")
         {
             DataSet retVal = new DataSet();
             DataTable table;
@@ -107,11 +127,26 @@ namespace Datenbank
                     }
                     retVal.Tables.Add(table);
 
-                    if (filter == "")
+                    if (nameFilter == "")
                     {
                         var col = db.GetCollection<Person>(Person.CollectionName);
                         var data = col.FindAll();
                         foreach (Person person in data)
+                        {
+                            row = table.NewRow();
+                            person.getAsRow(row);
+                            table.Rows.Add(row);
+                        }
+                    }
+                    else
+                    {
+                        var col = db.GetCollection<Person>(Person.CollectionName);
+                        col.EnsureIndex(x => x.firstName);
+                        var result = col.Query()
+                            .Where(x => x.firstName.Contains(nameFilter) || x.lastName.Contains(nameFilter))
+                            .ToList();
+                        Console.WriteLine(result.Count);
+                        foreach (Person person in result)
                         {
                             row = table.NewRow();
                             person.getAsRow(row);
