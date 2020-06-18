@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Data;
+using System.Linq;
 
 namespace Datenbank
 {
@@ -44,7 +46,8 @@ namespace Datenbank
         {
             List<Control> controls = new List<Control>();
 
-            //search box:
+            #region SearchBox
+
             Label searchLbl = new Label();
             searchLbl.Text = "Namen suchen: ";
             searchLbl.Size = searchLbl.PreferredSize;
@@ -61,7 +64,10 @@ namespace Datenbank
             searchLbl.Left = searchBox.Left - searchLbl.Size.Width - 10;
             controls.AddRange(new Control[] { searchLbl, searchBox });
 
-            //table
+            #endregion
+
+            #region Table
+
             DataGridView dgv = new DataGridView();
             dgv.DataSource = DBCon.GetDataSet(new Person());
             dgv.DataMember = Person.CollectionName;
@@ -71,11 +77,72 @@ namespace Datenbank
             dgv.Left = 10;
             dgv.ReadOnly = true;
             dgv.AllowUserToDeleteRows = false;
+            dgv.CellClick += new DataGridViewCellEventHandler(clickTableCont);
+            
 
-            //buttons
+            #endregion
+
+            #region Buttons
+
             string[] buttonNames = { "Neu..", "Bearbeiten..", "Löschen.." };
             Image[] buttonIcons = { Image.FromFile("./img/new_data_smol.png"), Image.FromFile("./img/edit_data_smol.png"), Image.FromFile("./img/delete_data_smol.png") };
             EventHandler[] buttonEvents = { new EventHandler(addMember), new EventHandler(editMember), new EventHandler(deleteMember) };
+
+            searchBox.Leave += new EventHandler(searchBoxLeft);
+            Button accept = new Button();
+            accept.Click += new EventHandler(searchBoxLeft);
+            form1.AcceptButton = accept;
+
+            Size prefSize = new Size();
+            for (int i = 0; i < buttonNames.Length; i++)
+            {
+                Button btn = new Button();
+                btn.Text = buttonNames[i];
+                if (prefSize.IsEmpty)
+                {
+                    prefSize = btn.PreferredSize;
+                }
+                btn.Image = buttonIcons[i];
+
+                btn.Click += buttonEvents[i];
+
+                btn.Size = prefSize;
+                btn.Width = prefSize.Width * 2;
+                btn.Top = form1.MainMenuStrip.Height + 10;
+                btn.Left = 10 + (i * (btn.Width + 5));
+                controls.Add(btn);
+            }
+
+            #endregion
+
+            #region DropDown
+
+            Button defFilterDropDown = new Button();
+            defFilterDropDown.Text = "Standardfilter";
+            defFilterDropDown.Size = prefSize;
+            defFilterDropDown.Width = prefSize.Width * 2;
+            defFilterDropDown.Top = form1.MainMenuStrip.Height + 10;
+            defFilterDropDown.Left = 10 + (buttonNames.Length * (defFilterDropDown.Width + 5));
+
+            string[] dropDownNames = { "Alle", "Barzahler", "SEPA", "Aktiv", "Passiv", "Ehrenmitglied" };
+            ContextMenuStrip dropDown = new ContextMenuStrip();
+
+            for (int i = 0; i < dropDownNames.Length; i++)
+            {
+                ToolStripItem dmy = new ToolStripButton();
+                dmy.Text = dropDownNames[i];
+                dmy.Size = defFilterDropDown.Size;
+                dmy.Click += new EventHandler(clickSetDefFilter);
+                dropDown.Items.Add(dmy);
+            }
+            defFilterDropDown.Click += new EventHandler(clickDropdown);
+            controls.Add(defFilterDropDown);
+
+            #endregion
+
+            controls.Add(dgv);
+
+            #region EventHandler
 
             void addMember(Object sender, EventArgs e)
             {
@@ -94,38 +161,57 @@ namespace Datenbank
             }
             void searchBoxLeft(object sender, EventArgs e)
             {
-                    dgv.DataSource = DBCon.GetDataSet(new Person(), searchBox.Text);
+                dgv.DataSource = DBCon.GetDataSet(new Person(), searchBox.Text);
             }
-            searchBox.Leave += new EventHandler(searchBoxLeft);
-            Button accept = new Button();
-            accept.Click += new EventHandler(searchBoxLeft);
-            form1.AcceptButton = accept;
-
-            Size prefSize = new Size();
-            for (int i = 0; i < buttonNames.Length; i++)
+            void clickDropdown(object sender, EventArgs e)
             {
-                Button btn = new Button();
-                btn.Text = buttonNames[i];
-                // btn.TextAlign = ContentAlignment.MiddleLeft;
-                if (prefSize.IsEmpty)
+                Button clicked = (Button)sender;
+                dropDown.Show(clicked.Location);
+            }
+            void clickSetDefFilter(object sender, EventArgs e)
+            {
+                ToolStripItem clicked = (ToolStripItem)sender;
+                switch (clicked.Text)
                 {
-                    prefSize = btn.PreferredSize;
+                    case "Barzahler":
+                        dgv.DataSource = DBCon.PersonFilterPmtType(Person.paymentType.Cash);
+                        break;
+                    case "SEPA":
+                        dgv.DataSource = DBCon.PersonFilterPmtType(Person.paymentType.SEPA);
+                        break;
+                    case "Aktiv":
+                        dgv.DataSource = DBCon.PersonFilterMemberType(Person.type.Active);
+                        break;
+                    case "Passiv":
+                        dgv.DataSource = DBCon.PersonFilterMemberType(Person.type.Passive);
+                        break;
+                    case "Ehrenmitglied":
+                        dgv.DataSource = DBCon.PersonFilterMemberType(Person.type.Honor);
+                        break;
+                    case "Alle":
+                        dgv.DataSource = DBCon.GetDataSet(new Person());
+                        break;
                 }
-                btn.Image = buttonIcons[i];
-                // btn.ImageAlign = ContentAlignment.MiddleLeft;
-                // btn.BackgroundImage = buttonIcons[i];
-                // btn.BackgroundImageLayout = ImageLayout.Zoom;
+            }
+            void clickTableCont(object sender, DataGridViewCellEventArgs e)
+            {
+                if(e.RowIndex >= 0) {
+                    DataGridView dmyDgv = (DataGridView) sender;
+                    // Person dmyPers = new Person();
+                    DataColumn[] cols = Person.dataColumns;
+                    var query = 
+                        from flds in Person.dataColumns
+                        where (flds.Unique == true)
+                        select flds.ColumnName;
 
-                btn.Click += buttonEvents[i];
-
-                btn.Size = prefSize;
-                btn.Width = prefSize.Width * 2;
-                btn.Top = form1.MainMenuStrip.Height + 10;
-                btn.Left = 10 + (i * (btn.Width + 5));
-                controls.Add(btn);
+                    var id = dmyDgv.Rows[e.RowIndex].Cells[query.First()].Value; 
+                        
+                    
+                    MiscForms.invokeMemberCard(DBCon.GetPersonById((int) id));
+                }
             }
 
-            controls.Add(dgv);
+            #endregion
 
             return controls.ToArray();
         }

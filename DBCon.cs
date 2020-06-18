@@ -13,6 +13,7 @@ namespace Datenbank
         private static string dbSec = @"Sec.db";
         public static bool unlocked;
 
+        #region Login Mgt
         public static bool checkPassword(string entry)
         {
             using (var db = new LiteDatabase(dbSec))
@@ -50,6 +51,9 @@ namespace Datenbank
                 rec.Insert(dmy);
             }
         }
+        #endregion
+
+        #region Write Database (general)
         public static void writeToDb(DBObject bObject, mode bMode)
         {
             using (var db = new LiteDatabase(dbName))
@@ -69,39 +73,9 @@ namespace Datenbank
                 }
             }
         }
-        public static void readDb(DBObject bObject, List<DBObject> resultObjList, string nameFilter = "")
-        {
-            using (var db = new LiteDatabase(dbName))
-            {
-                if (nameFilter == "")
-                {
-                    if (bObject is Person)
-                    {
-                        var col = db.GetCollection<Person>(Person.CollectionName);
-                        var data = col.FindAll();
-                        resultObjList.AddRange(data);
-                        return;
-                    }
-                }
-                else
-                {
-                    if (bObject is Person)
-                    {
-                        var col = db.GetCollection<Person>(Person.CollectionName);
-                        col.EnsureIndex(x => x.firstName);
-                        var result = col.Query()
-                            .Where(x => x.firstName.Contains(nameFilter) || x.lastName.Contains(nameFilter))
-                            .ToList();
+        #endregion
 
-                        resultObjList.AddRange(result);
-                        Console.WriteLine(resultObjList.Count);
-                        return;
-                    }
-                }
-            }
-        }
-
-
+        #region Read Database (general)
         public static DataSet GetDataSet(DBObject dBObject, string nameFilter = "")
         {
             DataSet retVal = new DataSet();
@@ -145,7 +119,7 @@ namespace Datenbank
                         var result = col.Query()
                             .Where(x => x.firstName.Contains(nameFilter) || x.lastName.Contains(nameFilter))
                             .ToList();
-                        Console.WriteLine(result.Count);
+
                         foreach (Person person in result)
                         {
                             row = table.NewRow();
@@ -159,6 +133,94 @@ namespace Datenbank
 
             return retVal;
         }
+
+        #endregion
+
+        #region Person filters
+        public static DataSet PersonFilterMemberType(Person.type memberType)
+        {
+            DataSet result = new DataSet();
+            DataTable table;
+            DataColumn[] PrimaryKeyCols = new DataColumn[1];
+            DataRow row;
+
+            using (var db = new LiteDatabase(dbName))
+            {
+                table = new DataTable(Person.CollectionName);
+                table.Columns.AddRange(Person.dataColumns);
+                foreach (DataColumn dmyDc in Person.dataColumns)
+                {
+                    if (dmyDc.Unique)
+                    {
+                        PrimaryKeyCols[0] = table.Columns[dmyDc.ColumnName];
+                        table.PrimaryKey = PrimaryKeyCols;
+                        break;
+                    }
+                }
+                result.Tables.Add(table);
+
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.EnsureIndex(x => x.memberType);
+                var query = col.Query()
+                    .Where(x => x.memberType == memberType)
+                    .ToList();
+                foreach (Person person in query)
+                {
+                    row = table.NewRow();
+                    person.getAsRow(row);
+                    table.Rows.Add(row);
+                }
+            }
+            return result;
+        }
+        public static DataSet PersonFilterPmtType(Person.paymentType pmtType)
+        {
+            DataSet result = new DataSet();
+            DataTable table;
+            DataColumn[] PrimaryKeyCols = new DataColumn[1];
+            DataRow row;
+
+            using (var db = new LiteDatabase(dbName))
+            {
+                table = new DataTable(Person.CollectionName);
+                table.Columns.AddRange(Person.dataColumns);
+                foreach (DataColumn dmyDc in Person.dataColumns)
+                {
+                    if (dmyDc.Unique)
+                    {
+                        PrimaryKeyCols[0] = table.Columns[dmyDc.ColumnName];
+                        table.PrimaryKey = PrimaryKeyCols;
+                        break;
+                    }
+                }
+                result.Tables.Add(table);
+
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.EnsureIndex(x => x.pmtType);
+                var query = col.Query()
+                    .Where(x => x.pmtType == pmtType)
+                    .ToList();
+                foreach (Person person in query)
+                {
+                    row = table.NewRow();
+                    person.getAsRow(row);
+                    table.Rows.Add(row);
+                }
+            }
+            return result;
+        }
+        public static Person GetPersonById(int id)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                var res = col.Query()
+                    .Where(x => x.id == id);
+                return res.First();
+            }
+        }
+
+        #endregion
     }
     enum mode
     {
