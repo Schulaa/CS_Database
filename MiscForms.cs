@@ -10,8 +10,11 @@ namespace Datenbank
         {
             MiscForms memberCard = new MiscForms();
             memberCard.Text = "Mitgliederkarte " + p.firstName + " " + p.lastName;
+            // memberCard.Size = new System.Drawing.Size(800,600);
             memberCard.WindowState = FormWindowState.Maximized;
-            memberCard.ShowDialog();
+            memberCard.Controls.AddRange(ControlLists.memberCardPage(memberCard,p));
+            memberCard.ShowDialog();     
+                        
         }
     }
 }

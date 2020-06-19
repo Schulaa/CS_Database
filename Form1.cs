@@ -34,7 +34,7 @@ namespace Datenbank
                         break;
                     
                     case WindowType.Member:
-                        resetView(ControlLists.memberPage(this));
+                        resetView(ControlLists.memberListPage(this));
                         break;
                 }
                 
@@ -69,7 +69,7 @@ namespace Datenbank
             {
                 //TODO
                 this.state = WindowType.Member;
-                this.resetView(ControlLists.memberPage(this));
+                this.resetView(ControlLists.memberListPage(this));
             }
 
             // memberDropdown.DropDown.Items.Add(memberListBtn);

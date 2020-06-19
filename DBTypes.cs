@@ -21,6 +21,7 @@ namespace Datenbank
         // public static ColumnInfo[] columnInfos { get; }
         public static DataColumn[] dataColumns { get; }
         public DataRow getAsRow(DataRow row);
+        public object[] getAsArray();
 
     }
     class Person : DBObject
@@ -115,7 +116,18 @@ namespace Datenbank
 
         public DataRow getAsRow(DataRow row)
         {
-            object[] data = {this.id,
+
+            object[] data = this.getAsArray();
+            for (int i = 0; i < data.Length; i++)
+            {
+                row[dataColumns[i].ColumnName] = data[i];
+            }
+            return row;
+        }
+
+        public object[] getAsArray()
+        {
+            return new object[]{this.id,
                             this.firstName,
                             this.lastName,
                             this.city,
@@ -128,14 +140,11 @@ namespace Datenbank
                             this.leftDate,
                             this.comment
                             };
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                row[dataColumns[i].ColumnName] = data[i];
-            }
-            return row;
         }
+
+
     }
+
 
     class SecurityObject : DBObject
     {
@@ -143,7 +152,7 @@ namespace Datenbank
         {
             this.password = pwd;
         }
-        public string password {get;set;}
+        public string password { get; set; }
         public static string CollectionName
         {
             get => "security";
@@ -170,7 +179,7 @@ namespace Datenbank
             if (obj is SecurityObject)
             {
                 SecurityObject so = (SecurityObject)obj;
-                
+
                 if (so.password == this.password)
                 {
                     return true;
@@ -182,6 +191,11 @@ namespace Datenbank
         public override int GetHashCode()
         {
             return HashCode.Combine(password);
+        }
+
+        public object[] getAsArray()
+        {
+            return new object[] { this.password };
         }
     }
 }

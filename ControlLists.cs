@@ -9,7 +9,8 @@ namespace Datenbank
 {
     class ControlLists
     {
-        public static Control[] indexPage(Form1 form1)
+        #region MainPage
+        public static Control[] indexPage(Form form1)
         {
             List<Control> ctrlList = new List<Control>();
             Label label = new Label();
@@ -41,8 +42,10 @@ namespace Datenbank
             ctrlList.Add(button);
             return ctrlList.ToArray();
         }
+        #endregion
 
-        public static Control[] memberPage(Form1 form1)
+        #region MemberPages
+        public static Control[] memberListPage(Form form1)
         {
             List<Control> controls = new List<Control>();
 
@@ -77,6 +80,7 @@ namespace Datenbank
             dgv.Left = 10;
             dgv.ReadOnly = true;
             dgv.AllowUserToDeleteRows = false;
+            dgv.AllowUserToAddRows = false;
             dgv.CellClick += new DataGridViewCellEventHandler(clickTableCont);
             
 
@@ -118,7 +122,7 @@ namespace Datenbank
             #region DropDown
 
             Button defFilterDropDown = new Button();
-            defFilterDropDown.Text = "Standardfilter";
+            defFilterDropDown.Text = "Standardfilter...";
             defFilterDropDown.Size = prefSize;
             defFilterDropDown.Width = prefSize.Width * 2;
             defFilterDropDown.Top = form1.MainMenuStrip.Height + 10;
@@ -215,5 +219,40 @@ namespace Datenbank
 
             return controls.ToArray();
         }
+        
+        public static Control[] memberCardPage(Form form1, Person person)
+        {
+            List<Control> controls = new List<Control>();
+            DataColumn[] fields = Person.dataColumns;
+            object[] data = person.getAsArray();
+            int startHeight = 50;
+            int startLeft = 20;
+            Size defSize = new Size(250,80);
+
+            int fieldsPerCol = fields.Count() / 2;
+            for (int i = 0; i < fields.Count(); i++)
+            {
+                Label lbl = new Label();
+                lbl.Text = fields[i].ColumnName;
+                lbl.Size = defSize;
+
+                TextBox tbox = new TextBox();
+                tbox.Name = lbl.Text;
+                if(i<data.Length && data[i] != null) {
+                tbox.Text = data[i].ToString();
+                }
+                tbox.Size = defSize;
+                
+                lbl.Top = startHeight + (i%fieldsPerCol)*(lbl.Size.Height) + 20;
+                tbox.Top = lbl.Top;
+                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + lbl.Size.Width + tbox.Size.Width + 50);
+                tbox.Left = lbl.Left + lbl.Size.Width + 10; 
+
+                controls.AddRange(new Control[]{lbl,tbox});
+            }
+            return controls.ToArray();
+        }
+
+        #endregion
     }
 }
