@@ -219,7 +219,55 @@ namespace Datenbank
                 return res.First();
             }
         }
+        public static DataSet GetPersonDSById(int id)
+        {
+            DataSet result = new DataSet();
+            result.DataSetName = Person.CollectionName;
+            DataTable table;
+            DataColumn[] PrimaryKeyCols = new DataColumn[1];
+            DataRow row;
 
+            using (var db = new LiteDatabase(dbName))
+            {
+                table = new DataTable(Person.CollectionName);
+                table.Columns.AddRange(Person.dataColumns);
+                foreach (DataColumn dmyDc in Person.dataColumns)
+                {
+                    if (dmyDc.Unique)
+                    {
+                        PrimaryKeyCols[0] = table.Columns[dmyDc.ColumnName];
+                        table.PrimaryKey = PrimaryKeyCols;
+                        break;
+                    }
+                }
+                result.Tables.Add(table);
+
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.EnsureIndex(x => x.id);
+                var query = col.Query()
+                    .Where(x => x.id == id)
+                    .ToList();
+                foreach (Person person in query)
+                {
+                    row = table.NewRow();
+                    person.getAsRow(row);
+                    table.Rows.Add(row);
+                }
+            }
+            return result;
+        }
+
+        #endregion
+
+        #region Write Database (Person)
+        public static void UpsertPerson(Person person1)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.Upsert(person1);
+            }
+        }
         #endregion
     }
     enum mode

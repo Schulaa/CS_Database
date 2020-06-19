@@ -82,7 +82,7 @@ namespace Datenbank
             dgv.AllowUserToDeleteRows = false;
             dgv.AllowUserToAddRows = false;
             dgv.CellClick += new DataGridViewCellEventHandler(clickTableCont);
-            
+
 
             #endregion
 
@@ -199,19 +199,20 @@ namespace Datenbank
             }
             void clickTableCont(object sender, DataGridViewCellEventArgs e)
             {
-                if(e.RowIndex >= 0) {
-                    DataGridView dmyDgv = (DataGridView) sender;
+                if (e.RowIndex >= 0)
+                {
+                    DataGridView dmyDgv = (DataGridView)sender;
                     // Person dmyPers = new Person();
                     DataColumn[] cols = Person.dataColumns;
-                    var query = 
+                    var query =
                         from flds in Person.dataColumns
                         where (flds.Unique == true)
                         select flds.ColumnName;
 
-                    var id = dmyDgv.Rows[e.RowIndex].Cells[query.First()].Value; 
-                        
-                    
-                    MiscForms.invokeMemberCard(DBCon.GetPersonById((int) id));
+                    var id = dmyDgv.Rows[e.RowIndex].Cells[query.First()].Value;
+
+
+                    MiscForms.invokeMemberCard(DBCon.GetPersonById((int)id));
                 }
             }
 
@@ -219,7 +220,7 @@ namespace Datenbank
 
             return controls.ToArray();
         }
-        
+
         public static Control[] memberCardPage(Form form1, Person person)
         {
             List<Control> controls = new List<Control>();
@@ -227,8 +228,7 @@ namespace Datenbank
             object[] data = person.getAsArray();
             int startHeight = 50;
             int startLeft = 20;
-            Size defSize = new Size(250,80);
-
+            Size defSize = new Size(250, 80);
             int fieldsPerCol = fields.Count() / 2;
             for (int i = 0; i < fields.Count(); i++)
             {
@@ -236,20 +236,204 @@ namespace Datenbank
                 lbl.Text = fields[i].ColumnName;
                 lbl.Size = defSize;
 
-                TextBox tbox = new TextBox();
-                tbox.Name = lbl.Text;
-                if(i<data.Length && data[i] != null) {
-                tbox.Text = data[i].ToString();
-                }
-                tbox.Size = defSize;
-                
-                lbl.Top = startHeight + (i%fieldsPerCol)*(lbl.Size.Height) + 20;
-                tbox.Top = lbl.Top;
-                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + lbl.Size.Width + tbox.Size.Width + 50);
-                tbox.Left = lbl.Left + lbl.Size.Width + 10; 
+                lbl.Top = startHeight + (i % fieldsPerCol) * (lbl.Size.Height) + 20;
+                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + defSize.Width * 2 + 50);
 
-                controls.AddRange(new Control[]{lbl,tbox});
+                if (fields[i].DataType == typeof(Person.type))
+                {
+                    ComboBox cbox = new ComboBox();
+                    cbox.DataSource = DBObject.GetEnumList<Person.type>();
+                    if (i < data.Length && data[i] != null)
+                    {
+                        cbox.Text = data[i].ToString();
+                    }
+                    else
+                    {
+                        cbox.Text = Person.type.Left.ToString();
+                    }
+                    setControlBounds(cbox);
+                    controls.Add(cbox);
+                }
+                else if (fields[i].DataType == typeof(Person.paymentType))
+                {
+                    ComboBox cbox = new ComboBox();
+                    cbox.DataSource = DBObject.GetEnumList<Person.paymentType>();
+                    if (i < data.Length && data[i] != null)
+                    {
+                        cbox.Text = data[i].ToString();
+                    }
+                    else
+                    {
+                        cbox.Text = Person.paymentType.None.ToString();
+                    }
+                    setControlBounds(cbox);
+                    controls.Add(cbox);
+                }
+                else if (fields[i].DataType == typeof(DateTime))
+                {
+                    DateTimePicker dbox = new DateTimePicker();
+                    dbox.Format = DateTimePickerFormat.Short;
+
+                    try
+                    {
+                        dbox.Value = (DateTime)data[i];
+                    }
+                    catch (System.ArgumentOutOfRangeException)
+                    {
+                        // dbox.Enabled = false;
+                        dbox.Format = DateTimePickerFormat.Custom;
+                        dbox.CustomFormat = " ";
+                        dbox.Validated += new EventHandler(dBoxValidated);
+                        dbox.MouseDown += new MouseEventHandler(dBoxValidated);
+
+                        void dBoxValidated(object sender, EventArgs e)
+                        {
+                            dbox.Format = DateTimePickerFormat.Short;
+                        }
+                    }
+
+                    setControlBounds(dbox);
+                    controls.Add(dbox);
+                }
+                else
+                {
+                    TextBox tbox = new TextBox();
+                    if (i < data.Length && data[i] != null)
+                    {
+                        tbox.Text = data[i].ToString();
+                    }
+                    setControlBounds(tbox);
+                    controls.Add(tbox);
+
+                }
+
+
+                void setControlBounds(Control control)
+                {
+                    control.Top = lbl.Top;
+                    control.Left = lbl.Left + lbl.Size.Width + 10;
+                    control.Size = defSize;
+                    control.Name = lbl.Text;
+                    control.Validated += new EventHandler(ctrlValidated);
+
+                    void ctrlValidated(object sender, EventArgs e)
+                    {
+
+                    }
+                }
+
+                controls.Add(lbl);
             }
+
+            return controls.ToArray();
+        }
+
+        public static Control[] memberCardPage(Form form1, DataSet person)
+        {
+            List<Control> controls = new List<Control>();
+            // DataColumn[] fields = Person.dataColumns;
+            // object[] data = person.getAsArray();
+            int startHeight = 50;
+            int startLeft = 20;
+            Size defSize = new Size(250, 80);
+            int fieldsPerCol = person.Tables[0].Columns.Count / 2;
+            
+            for (int i = 0; i < person.Tables[0].Columns.Count ; i++)
+            {
+                Label lbl = new Label();
+                lbl.DataBindings.Add(new Binding(person.Tables[0].Columns[i].ColumnName, person,Person.CollectionName + "." + person.Tables[0].Columns[i].ColumnName)); //person.Tables[0].TableName +"." + 
+                // lbl.Text = fields[i].ColumnName;
+                lbl.Size = defSize;
+
+                lbl.Top = startHeight + (i % fieldsPerCol) * (lbl.Size.Height) + 20;
+                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + defSize.Width * 2 + 50);
+
+                // if (fields[i].DataType == typeof(Person.type))
+                // {
+                //     ComboBox cbox = new ComboBox();
+                //     cbox.DataSource = DBObject.GetEnumList<Person.type>();
+                //     if (i < data.Length && data[i] != null)
+                //     {
+                //         cbox.Text = data[i].ToString();
+                //     }
+                //     else
+                //     {
+                //         cbox.Text = Person.type.Left.ToString();
+                //     }
+                //     setControlBounds(cbox);
+                //     controls.Add(cbox);
+                // }
+                // else if (fields[i].DataType == typeof(Person.paymentType))
+                // {
+                //     ComboBox cbox = new ComboBox();
+                //     cbox.DataSource = DBObject.GetEnumList<Person.paymentType>();
+                //     if (i < data.Length && data[i] != null)
+                //     {
+                //         cbox.Text = data[i].ToString();
+                //     }
+                //     else
+                //     {
+                //         cbox.Text = Person.paymentType.None.ToString();
+                //     }
+                //     setControlBounds(cbox);
+                //     controls.Add(cbox);
+                // }
+                // else if (fields[i].DataType == typeof(DateTime))
+                // {
+                //     DateTimePicker dbox = new DateTimePicker();
+                //     dbox.Format = DateTimePickerFormat.Short;
+
+                //     try
+                //     {
+                //         dbox.Value = (DateTime)data[i];
+                //     }
+                //     catch (System.ArgumentOutOfRangeException)
+                //     {
+                //         // dbox.Enabled = false;
+                //         dbox.Format = DateTimePickerFormat.Custom;
+                //         dbox.CustomFormat = " ";
+                //         dbox.Validated += new EventHandler(dBoxValidated);
+                //         dbox.MouseDown += new MouseEventHandler(dBoxValidated);
+
+                //         void dBoxValidated(object sender, EventArgs e)
+                //         {
+                //             dbox.Format = DateTimePickerFormat.Short;
+                //         }
+                //     }
+
+                //     setControlBounds(dbox);
+                //     controls.Add(dbox);
+                // }
+                // else
+                // {
+                //     TextBox tbox = new TextBox();
+                //     if (i < data.Length && data[i] != null)
+                //     {
+                //         tbox.Text = data[i].ToString();
+                //     }
+                //     setControlBounds(tbox);
+                //     controls.Add(tbox);
+
+                // }
+
+
+                void setControlBounds(Control control)
+                {
+                    control.Top = lbl.Top;
+                    control.Left = lbl.Left + lbl.Size.Width + 10;
+                    control.Size = defSize;
+                    control.Name = lbl.Text;
+                    control.Validated += new EventHandler(ctrlValidated);
+
+                    void ctrlValidated(object sender, EventArgs e)
+                    {
+
+                    }
+                }
+
+                controls.Add(lbl);
+            }
+
             return controls.ToArray();
         }
 

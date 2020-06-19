@@ -12,7 +12,7 @@ namespace Datenbank
             memberCard.Text = "Mitgliederkarte " + p.firstName + " " + p.lastName;
             // memberCard.Size = new System.Drawing.Size(800,600);
             memberCard.WindowState = FormWindowState.Maximized;
-            memberCard.Controls.AddRange(ControlLists.memberCardPage(memberCard,p));
+            memberCard.Controls.AddRange(ControlLists.memberCardPage(memberCard,DBCon.GetPersonDSById(p.id)));
             memberCard.ShowDialog();     
                         
         }

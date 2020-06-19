@@ -1,5 +1,8 @@
 using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace Datenbank
 {
@@ -23,6 +26,8 @@ namespace Datenbank
         public DataRow getAsRow(DataRow row);
         public object[] getAsArray();
 
+        public static List<TEnum> GetEnumList<TEnum>() where TEnum : Enum
+            => ((TEnum[])Enum.GetValues(typeof(TEnum))).ToList();
     }
     class Person : DBObject
     {
