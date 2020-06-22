@@ -164,8 +164,6 @@ namespace Datenbank
             this.comment = (string)val[11];
         }
     }
-
-
     class SecurityObject : DBObject
     {
         public SecurityObject(string pwd)
@@ -216,12 +214,93 @@ namespace Datenbank
 
         public object[] getAsObjArr()
         {
-            return new object[] {this.password};
+            return new object[] { this.password };
         }
 
         public void setAsObjArr(object[] val)
         {
             this.password = (string)val[0];
+        }
+    }
+    class PersonAccountInfo : DBObject
+    {
+        private int personId;
+        public int mandateId;
+        public string iban;
+        public string bic;
+        public string personName;
+        public string bankName;
+        public DateTime mandateDate;
+        public static string CollectionName
+        {
+            get => "accountInfo";
+        }
+        public static DataColumn[] dataColumns
+        {
+            get => new DataColumn[]{
+                new DataColumn {
+                    DataType = typeof(int),
+                    ColumnName = "Personen-ID",
+                    Unique = true,
+                    },
+                new DataColumn {
+                    DataType = typeof(int),
+                    ColumnName = "Mandatsreferenz"
+                },
+                new DataColumn {
+                    DataType = typeof(string),
+                    ColumnName = "IBAN"
+                },
+                new DataColumn {
+                    DataType = typeof(string),
+                    ColumnName = "BIC"
+                },
+                new DataColumn {
+                    DataType = typeof(string),
+                    ColumnName = "Kontoinhaber"
+                },
+                new DataColumn {
+                    DataType = typeof(string),
+                    ColumnName = "Kreditinstitut"
+                },
+                new DataColumn {
+                    DataType = typeof(DateTime),
+                    ColumnName = "Mandatsdatum"
+                }
+            };
+        }
+        public object[] getAsObjArr()
+        {
+            return new object[] {
+                this.personId,
+                this.mandateId,
+                this.iban,
+                this.bic,
+                this.personName,
+                this.bankName,
+                this.mandateDate
+            };
+        }
+
+        public DataRow getAsRow(DataRow row)
+        {
+            object[] data = this.getAsObjArr();
+            for (int i = 0; i < data.Length; i++)
+            {
+                row[dataColumns[i].ColumnName] = data[i];
+            }
+            return row;
+        }
+
+        public void setAsObjArr(object[] val)
+        {
+            this.personId = (int)val[0];
+            this.mandateId = (int)val[1];
+            this.iban = (string)val[2];
+            this.bic = (string)val[3];
+            this.personName = (string)val[4];
+            this.bankName = (string)val[5];
+            this.mandateDate = (DateTime)val[6];
         }
     }
 }

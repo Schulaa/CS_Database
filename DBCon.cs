@@ -265,8 +265,9 @@ namespace Datenbank
                 col.EnsureIndex(x=>x.id);
                 Person person = col.Query()
                     .OrderByDescending(x=>x.id)
-                    .First();        
-                return person.id +1;            
+                    .FirstOrDefault();        
+                
+                return person is null ? 1 : person.id +1;            
             }
         }
         

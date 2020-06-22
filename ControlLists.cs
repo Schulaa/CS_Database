@@ -193,8 +193,7 @@ namespace Datenbank
                     if (MessageBox.Show("Sind Sie sicher, dass Sie das Mitglied löschen möchten?", "Löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2, MessageBoxOptions.DefaultDesktopOnly, false) == DialogResult.Yes)
                     {
                         DBCon.DeletePerson(DBCon.GetPersonById((int)id));
-                        onDisposed(sender,e);
-                        
+                        onDisposed(sender, e);
                     }
                 }
 
@@ -304,6 +303,7 @@ namespace Datenbank
                 {
                     ComboBox cbox = new ComboBox();
                     cbox.DropDownStyle = ComboBoxStyle.DropDownList;
+
                     foreach (var item in DBObject.GetEnumList<Person.paymentType>())
                     {
                         cbox.Items.Add(item);
@@ -318,6 +318,15 @@ namespace Datenbank
                     }
                     setControlBounds(cbox);
                     controls.Add(cbox);
+
+                    Button btn = new Button();
+                    btn.Image = Image.FromFile("./img/folder_contacts_smol.png");
+                    btn.Height = cbox.Size.Height + 5;
+                    btn.Width = btn.Height + 5;
+                    btn.Top = cbox.Top;
+                    btn.Left = cbox.Left + cbox.Size.Width + 10;
+                    controls.Add(btn);
+
                 }
                 else if (fields[i].DataType == typeof(DateTime))
                 {
@@ -399,7 +408,7 @@ namespace Datenbank
                         }
                         else
                         {
-                            
+
                             if (fields[fieldId].DataType == typeof(int))
                             {
                                 int num;
@@ -436,5 +445,111 @@ namespace Datenbank
 
 
         #endregion
+
+        // #region AccountInfo
+        // public static Control[] accountInfoCardPage(Form form, PersonAccountInfo ai)
+        // {
+        //     List<Control> controls = new List<Control>();
+        //     DataColumn[] fields = PersonAccountInfo.dataColumns;
+        //     object[] data = ai.getAsObjArr();
+        //     int startHeight = 50;
+        //     int startLeft = 20;
+        //     Size defSize = new Size(250, 80);
+        //     for (int i = 0; i < fields.Length; i++)
+        //     {
+        //         Label lbl = new Label();
+        //         lbl.Text = fields[i].ColumnName;
+        //         lbl.Size = defSize;
+        //         lbl.Top = startHeight + (i * lbl.Size.Height) + 10;
+        //         lbl.Left = startLeft;
+
+        //         if (fields[i].DataType == typeof(DateTime))
+        //         {
+        //             DateTimePicker dbox = new DateTimePicker();
+        //             dbox.Format = DateTimePickerFormat.Short;
+
+        //             try
+        //             {
+        //                 dbox.Value = (DateTime)data[i];
+        //             }
+        //             catch (System.ArgumentOutOfRangeException)
+        //             {
+        //                 dbox.Format = DateTimePickerFormat.Custom;
+        //                 dbox.CustomFormat = " ";
+        //                 // dbox.Validated += new EventHandler(dBoxValidated);
+        //                 // dbox.MouseDown += new MouseEventHandler(dBoxValidated);
+        //             }
+        //             controls.Add(dbox);
+        //         }
+        //         void setControlBounds(Control control)
+        //         {
+        //             control.Top = lbl.Top;
+        //             control.Left = lbl.Left + lbl.Size.Width + 10;
+        //             control.Size = defSize;
+        //             control.Name = lbl.Text;
+
+        //             if (control is TextBox)
+        //             {
+        //                 control.TextChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             else if (control is ComboBox)
+        //             {
+        //                 ComboBox cb = (ComboBox)control;
+        //                 cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             void ctrlTextChanged(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
+        //                 ctrl.Validated += new EventHandler(ctrlValidated);
+        //             }
+
+        //             void ctrlValidated(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
+
+        //                 int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
+        //                 if (ctrl is DateTimePicker)
+        //                 {
+        //                     DateTime date;
+        //                     if (DateTime.TryParse(ctrl.Text, out date))
+        //                     {
+        //                         data[fieldId] = date;
+        //                     }
+        //                 }
+        //                 else
+        //                 {
+
+        //                     if (fields[fieldId].DataType == typeof(int))
+        //                     {
+        //                         int num;
+        //                         if (int.TryParse(ctrl.Text, out num))
+        //                         {
+        //                             if (fields[fieldId].Unique && person != null)
+        //                             {
+        //                                 System.Windows.Forms.MessageBox.Show("Nach einer Primärschlüsseländerung muss die aktuelle Seite geschlossen werden!", "Meldung");
+        //                                 person = DBCon.UpdateIdPerson(person, num);
+        //                                 data[fieldId] = num;
+        //                                 control.Parent.Dispose();
+        //                             }
+        //                             else
+        //                             {
+        //                                 data[fieldId] = num;
+        //                             }
+        //                         }
+        //                     }
+        //                     else
+        //                     {
+        //                         data[fieldId] = control.Text;
+        //                     }
+        //                 }
+        //                 person.setAsObjArr(data);
+        //                 DBCon.UpsertPerson(person);
+        //             }
+        //         }
+        //         controls.Add(lbl);
+        //     }
+        //     return controls.ToArray();
+        // }
+        // #endregion
     }
 }
