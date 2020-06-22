@@ -81,7 +81,8 @@ namespace Datenbank
             dgv.ReadOnly = true;
             dgv.AllowUserToDeleteRows = false;
             dgv.AllowUserToAddRows = false;
-            dgv.CellClick += new DataGridViewCellEventHandler(clickTableCont);
+            // dgv.CellClick += new DataGridViewCellEventHandler(clickTableCont);
+            dgv.CellDoubleClick += new DataGridViewCellEventHandler(clickTableCont);
 
 
             #endregion
@@ -150,18 +151,53 @@ namespace Datenbank
 
             void addMember(Object sender, EventArgs e)
             {
-                //TODO
-                System.Windows.Forms.MessageBox.Show("add member");
+                Person p = new Person();
+                p.id = DBCon.GetNextPersonId();
+                DBCon.UpsertPerson(p);
+                Control ctrl = (Control)sender;
+                MemberCard mc = new MemberCard(p);
+                mc.Deactivate += new EventHandler(onDisposed);
+                mc.ShowDialog();
+
             }
             void editMember(Object sender, EventArgs e)
             {
-                //TODO
-                System.Windows.Forms.MessageBox.Show("edit member");
+                int rowId = dgv.SelectedCells[0].RowIndex;
+                Control ctrl = (Control)sender;
+                if (rowId >= 0)
+                {
+                    var query =
+                        from flds in Person.dataColumns
+                        where (flds.Unique == true)
+                        select flds.ColumnName;
+
+                    var id = dgv.Rows[rowId].Cells[query.First()].Value;
+
+                    MemberCard mc = new MemberCard(DBCon.GetPersonById((int)id));
+                    mc.Deactivate += new EventHandler(onDisposed);
+                    mc.ShowDialog();
+
+                }
             }
             void deleteMember(Object sender, EventArgs e)
             {
-                //TODO
-                System.Windows.Forms.MessageBox.Show("delete member" + dgv.SelectedRows.Count);
+                int rowId = dgv.SelectedCells[0].RowIndex;
+                if (rowId >= 0)
+                {
+                    var query =
+                        from flds in Person.dataColumns
+                        where (flds.Unique == true)
+                        select flds.ColumnName;
+
+                    var id = dgv.Rows[rowId].Cells[query.First()].Value;
+                    if (MessageBox.Show("Sind Sie sicher, dass Sie das Mitglied löschen möchten?", "Löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2, MessageBoxOptions.DefaultDesktopOnly, false) == DialogResult.Yes)
+                    {
+                        DBCon.DeletePerson(DBCon.GetPersonById((int)id));
+                        onDisposed(sender,e);
+                        
+                    }
+                }
+
             }
             void searchBoxLeft(object sender, EventArgs e)
             {
@@ -202,8 +238,7 @@ namespace Datenbank
                 if (e.RowIndex >= 0)
                 {
                     DataGridView dmyDgv = (DataGridView)sender;
-                    // Person dmyPers = new Person();
-                    DataColumn[] cols = Person.dataColumns;
+
                     var query =
                         from flds in Person.dataColumns
                         where (flds.Unique == true)
@@ -211,9 +246,15 @@ namespace Datenbank
 
                     var id = dmyDgv.Rows[e.RowIndex].Cells[query.First()].Value;
 
+                    MemberCard mc = new MemberCard(DBCon.GetPersonById((int)id));
+                    mc.Deactivate += new EventHandler(onDisposed);
+                    mc.ShowDialog();
 
-                    MiscForms.invokeMemberCard(DBCon.GetPersonById((int)id));
                 }
+            }
+            void onDisposed(Object sender, EventArgs e)
+            {
+                dgv.DataSource = DBCon.GetDataSet(new Person());
             }
 
             #endregion
@@ -225,7 +266,8 @@ namespace Datenbank
         {
             List<Control> controls = new List<Control>();
             DataColumn[] fields = Person.dataColumns;
-            object[] data = person.getAsArray();
+
+            object[] data = person.getAsObjArr();
             int startHeight = 50;
             int startLeft = 20;
             Size defSize = new Size(250, 80);
@@ -242,10 +284,14 @@ namespace Datenbank
                 if (fields[i].DataType == typeof(Person.type))
                 {
                     ComboBox cbox = new ComboBox();
-                    cbox.DataSource = DBObject.GetEnumList<Person.type>();
+                    cbox.DropDownStyle = ComboBoxStyle.DropDownList;
+                    foreach (var item in DBObject.GetEnumList<Person.type>())
+                    {
+                        cbox.Items.Add(item);
+                    }
                     if (i < data.Length && data[i] != null)
                     {
-                        cbox.Text = data[i].ToString();
+                        cbox.SelectedItem = data[i];
                     }
                     else
                     {
@@ -257,10 +303,14 @@ namespace Datenbank
                 else if (fields[i].DataType == typeof(Person.paymentType))
                 {
                     ComboBox cbox = new ComboBox();
-                    cbox.DataSource = DBObject.GetEnumList<Person.paymentType>();
+                    cbox.DropDownStyle = ComboBoxStyle.DropDownList;
+                    foreach (var item in DBObject.GetEnumList<Person.paymentType>())
+                    {
+                        cbox.Items.Add(item);
+                    }
                     if (i < data.Length && data[i] != null)
                     {
-                        cbox.Text = data[i].ToString();
+                        cbox.SelectedItem = data[i];
                     }
                     else
                     {
@@ -314,11 +364,67 @@ namespace Datenbank
                     control.Left = lbl.Left + lbl.Size.Width + 10;
                     control.Size = defSize;
                     control.Name = lbl.Text;
-                    control.Validated += new EventHandler(ctrlValidated);
+
+                    if (control is TextBox)
+                    {
+                        control.TextChanged += new EventHandler(ctrlTextChanged);
+                    }
+                    else if (control is ComboBox)
+                    {
+                        ComboBox cb = (ComboBox)control;
+                        cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
+                    }
+                    void ctrlTextChanged(object sender, EventArgs e)
+                    {
+                        Control ctrl = (Control)sender;
+                        ctrl.Validated += new EventHandler(ctrlValidated);
+                    }
 
                     void ctrlValidated(object sender, EventArgs e)
                     {
+                        Control ctrl = (Control)sender;
 
+                        int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
+                        if (ctrl is ComboBox)
+                        {
+                            Enum.TryParse(fields[fieldId].DataType, ctrl.Text, out data[fieldId]);
+                        }
+                        else if (ctrl is DateTimePicker)
+                        {
+                            DateTime date;
+                            if (DateTime.TryParse(ctrl.Text, out date))
+                            {
+                                data[fieldId] = date;
+                            }
+                        }
+                        else
+                        {
+                            
+                            if (fields[fieldId].DataType == typeof(int))
+                            {
+                                int num;
+                                if (int.TryParse(ctrl.Text, out num))
+                                {
+                                    if (fields[fieldId].Unique && person != null)
+                                    {
+                                        System.Windows.Forms.MessageBox.Show("Nach einer Primärschlüsseländerung muss die aktuelle Seite geschlossen werden!", "Meldung");
+                                        person = DBCon.UpdateIdPerson(person, num);
+                                        data[fieldId] = num;
+                                        control.Parent.Dispose();
+                                    }
+                                    else
+                                    {
+                                        data[fieldId] = num;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                data[fieldId] = control.Text;
+                            }
+                        }
+                        person.setAsObjArr(data);
+                        DBCon.UpsertPerson(person);
                     }
                 }
 
@@ -328,114 +434,6 @@ namespace Datenbank
             return controls.ToArray();
         }
 
-        public static Control[] memberCardPage(Form form1, DataSet person)
-        {
-            List<Control> controls = new List<Control>();
-            // DataColumn[] fields = Person.dataColumns;
-            // object[] data = person.getAsArray();
-            int startHeight = 50;
-            int startLeft = 20;
-            Size defSize = new Size(250, 80);
-            int fieldsPerCol = person.Tables[0].Columns.Count / 2;
-            
-            for (int i = 0; i < person.Tables[0].Columns.Count ; i++)
-            {
-                Label lbl = new Label();
-                lbl.DataBindings.Add(new Binding(person.Tables[0].Columns[i].ColumnName, person,Person.CollectionName + "." + person.Tables[0].Columns[i].ColumnName)); //person.Tables[0].TableName +"." + 
-                // lbl.Text = fields[i].ColumnName;
-                lbl.Size = defSize;
-
-                lbl.Top = startHeight + (i % fieldsPerCol) * (lbl.Size.Height) + 20;
-                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + defSize.Width * 2 + 50);
-
-                // if (fields[i].DataType == typeof(Person.type))
-                // {
-                //     ComboBox cbox = new ComboBox();
-                //     cbox.DataSource = DBObject.GetEnumList<Person.type>();
-                //     if (i < data.Length && data[i] != null)
-                //     {
-                //         cbox.Text = data[i].ToString();
-                //     }
-                //     else
-                //     {
-                //         cbox.Text = Person.type.Left.ToString();
-                //     }
-                //     setControlBounds(cbox);
-                //     controls.Add(cbox);
-                // }
-                // else if (fields[i].DataType == typeof(Person.paymentType))
-                // {
-                //     ComboBox cbox = new ComboBox();
-                //     cbox.DataSource = DBObject.GetEnumList<Person.paymentType>();
-                //     if (i < data.Length && data[i] != null)
-                //     {
-                //         cbox.Text = data[i].ToString();
-                //     }
-                //     else
-                //     {
-                //         cbox.Text = Person.paymentType.None.ToString();
-                //     }
-                //     setControlBounds(cbox);
-                //     controls.Add(cbox);
-                // }
-                // else if (fields[i].DataType == typeof(DateTime))
-                // {
-                //     DateTimePicker dbox = new DateTimePicker();
-                //     dbox.Format = DateTimePickerFormat.Short;
-
-                //     try
-                //     {
-                //         dbox.Value = (DateTime)data[i];
-                //     }
-                //     catch (System.ArgumentOutOfRangeException)
-                //     {
-                //         // dbox.Enabled = false;
-                //         dbox.Format = DateTimePickerFormat.Custom;
-                //         dbox.CustomFormat = " ";
-                //         dbox.Validated += new EventHandler(dBoxValidated);
-                //         dbox.MouseDown += new MouseEventHandler(dBoxValidated);
-
-                //         void dBoxValidated(object sender, EventArgs e)
-                //         {
-                //             dbox.Format = DateTimePickerFormat.Short;
-                //         }
-                //     }
-
-                //     setControlBounds(dbox);
-                //     controls.Add(dbox);
-                // }
-                // else
-                // {
-                //     TextBox tbox = new TextBox();
-                //     if (i < data.Length && data[i] != null)
-                //     {
-                //         tbox.Text = data[i].ToString();
-                //     }
-                //     setControlBounds(tbox);
-                //     controls.Add(tbox);
-
-                // }
-
-
-                void setControlBounds(Control control)
-                {
-                    control.Top = lbl.Top;
-                    control.Left = lbl.Left + lbl.Size.Width + 10;
-                    control.Size = defSize;
-                    control.Name = lbl.Text;
-                    control.Validated += new EventHandler(ctrlValidated);
-
-                    void ctrlValidated(object sender, EventArgs e)
-                    {
-
-                    }
-                }
-
-                controls.Add(lbl);
-            }
-
-            return controls.ToArray();
-        }
 
         #endregion
     }

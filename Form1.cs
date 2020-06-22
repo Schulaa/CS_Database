@@ -106,6 +106,10 @@ namespace Datenbank
             resetView();
             this.Controls.AddRange(newCtrls);
         }
+
+        private void updateView() {
+            this.OnClientSizeChanged(null);
+        }
     }
 
     public enum WindowType

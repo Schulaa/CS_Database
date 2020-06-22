@@ -24,7 +24,9 @@ namespace Datenbank
         // public static ColumnInfo[] columnInfos { get; }
         public static DataColumn[] dataColumns { get; }
         public DataRow getAsRow(DataRow row);
-        public object[] getAsArray();
+        public object[] getAsObjArr();
+        public void setAsObjArr(object[] val);
+
 
         public static List<TEnum> GetEnumList<TEnum>() where TEnum : Enum
             => ((TEnum[])Enum.GetValues(typeof(TEnum))).ToList();
@@ -103,7 +105,6 @@ namespace Datenbank
 
             };
         }
-
         public enum type
         {
             Active,
@@ -122,7 +123,7 @@ namespace Datenbank
         public DataRow getAsRow(DataRow row)
         {
 
-            object[] data = this.getAsArray();
+            object[] data = this.getAsObjArr();
             for (int i = 0; i < data.Length; i++)
             {
                 row[dataColumns[i].ColumnName] = data[i];
@@ -130,7 +131,7 @@ namespace Datenbank
             return row;
         }
 
-        public object[] getAsArray()
+        public object[] getAsObjArr()
         {
             return new object[]{this.id,
                             this.firstName,
@@ -147,7 +148,21 @@ namespace Datenbank
                             };
         }
 
-
+        public void setAsObjArr(object[] val)
+        {
+            this.id = (int)val[0];
+            this.firstName = (string)val[1];
+            this.lastName = (string)val[2];
+            this.city = (string)val[3];
+            this.postcode = (string)val[4];
+            this.address = (string)val[5];
+            this.memberType = (Person.type)val[6];
+            this.pmtType = (Person.paymentType)val[7];
+            this.birthday = (DateTime)val[8];
+            this.entryDate = (DateTime)val[9];
+            this.leftDate = (DateTime)val[10];
+            this.comment = (string)val[11];
+        }
     }
 
 
@@ -172,6 +187,7 @@ namespace Datenbank
                     }
             };
         }
+
 
         DataRow DBObject.getAsRow(DataRow row)
         {
@@ -198,9 +214,14 @@ namespace Datenbank
             return HashCode.Combine(password);
         }
 
-        public object[] getAsArray()
+        public object[] getAsObjArr()
         {
-            return new object[] { this.password };
+            return new object[] {this.password};
+        }
+
+        public void setAsObjArr(object[] val)
+        {
+            this.password = (string)val[0];
         }
     }
 }

@@ -257,6 +257,19 @@ namespace Datenbank
             return result;
         }
 
+        public static int GetNextPersonId()
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.EnsureIndex(x=>x.id);
+                Person person = col.Query()
+                    .OrderByDescending(x=>x.id)
+                    .First();        
+                return person.id +1;            
+            }
+        }
+        
         #endregion
 
         #region Write Database (Person)
@@ -266,7 +279,26 @@ namespace Datenbank
             {
                 var col = db.GetCollection<Person>(Person.CollectionName);
                 col.Upsert(person1);
+                // col.Update(person1);
+
             }
+        }
+
+        public static void DeletePerson(Person person1)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<Person>(Person.CollectionName);
+                col.Delete(person1.id);
+            }
+        }
+
+        public static Person UpdateIdPerson(Person person1, int newId)
+        {
+            DeletePerson(person1);
+            person1.id = newId;
+            UpsertPerson(person1);
+            return person1;
         }
         #endregion
     }
