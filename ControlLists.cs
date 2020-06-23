@@ -48,7 +48,7 @@ namespace Datenbank
         public static Control[] memberListPage(Form form1)
         {
             List<Control> controls = new List<Control>();
-
+            Person dmyPers = new Person();
             #region SearchBox
 
             Label searchLbl = new Label();
@@ -73,7 +73,7 @@ namespace Datenbank
 
             DataGridView dgv = new DataGridView();
             dgv.DataSource = DBCon.GetDataSet(new Person());
-            dgv.DataMember = Person.CollectionName;
+            dgv.DataMember = dmyPers.CollectionName;
             dgv.Height = form1.ClientSize.Height - form1.MainMenuStrip.Height - 20;
             dgv.Width = form1.ClientSize.Width - 100;
             dgv.Top = form1.MainMenuStrip.Height + 50;
@@ -167,7 +167,7 @@ namespace Datenbank
                 if (rowId >= 0)
                 {
                     var query =
-                        from flds in Person.dataColumns
+                        from flds in dmyPers.dataColumns
                         where (flds.Unique == true)
                         select flds.ColumnName;
 
@@ -264,7 +264,7 @@ namespace Datenbank
         public static Control[] memberCardPage(Form form1, Person person)
         {
             List<Control> controls = new List<Control>();
-            DataColumn[] fields = Person.dataColumns;
+            DataColumn[] fields = person.dataColumns;
 
             object[] data = person.getAsObjArr();
             int startHeight = 50;

@@ -7,23 +7,11 @@ using System.Security.Cryptography;
 
 namespace Datenbank
 {
-    // class ColumnInfo
-    // {
-
-    //     public string name;
-    //     public Type colType;
-
-    //     public ColumnInfo(string name, Type colType)
-    //     {
-    //         this.name = name;
-    //         this.colType = colType;
-    //     }
-    // }
     interface DBObject
     {
-        public static string CollectionName { get; }
+        public string CollectionName { get; }
         // public static ColumnInfo[] columnInfos { get; }
-        public static DataColumn[] dataColumns { get; }
+        public DataColumn[] dataColumns { get; }
         public DataRow getAsRow(DataRow row);
         public object[] getAsObjArr();
         public void setAsObjArr(object[] val);
@@ -47,11 +35,11 @@ namespace Datenbank
         public DateTime entryDate { get; set; }
         public DateTime leftDate { get; set; }
         public string comment { get; set; }
-        public static string CollectionName
+        public string CollectionName
         {
             get => "person";
         }
-        public static DataColumn[] dataColumns
+        public DataColumn[] dataColumns
         {
             get => new DataColumn[]{
                 new DataColumn {
@@ -170,13 +158,15 @@ namespace Datenbank
         public void setPassword(string pwd) {
             this.hashedPwd = SecurePasswordHasher.Hash(pwd);
         }
+
+
         public string hashedPwd{get;set;}
-        
-        public static string CollectionName
+
+        public string CollectionName
         {
             get => "security";
         }
-        public static DataColumn[] dataColumns
+        public DataColumn[] dataColumns
         {
             get => new DataColumn[]{
                 new DataColumn {
@@ -185,11 +175,6 @@ namespace Datenbank
                     Unique = true,
                     }
             };
-        }
-        DataRow DBObject.getAsRow(DataRow row)
-        {
-            row[dataColumns[0].ColumnName] = this.hashedPwd;
-            return row;
         }
 
         public object[] getAsObjArr()
@@ -205,6 +190,11 @@ namespace Datenbank
         {
             return SecurePasswordHasher.Verify(pwd,this.hashedPwd);
         }
+
+        public DataRow getAsRow(DataRow row)
+        {
+            throw new NotImplementedException();
+        }
     }
     class PersonAccountInfo : DBObject
     {
@@ -215,11 +205,11 @@ namespace Datenbank
         public string personName{get;set;}
         public string bankName{get;set;}
         public DateTime mandateDate{get;set;}
-        public static string CollectionName
+        public string CollectionName
         {
             get => "accountInfo";
         }
-        public static DataColumn[] dataColumns
+        public DataColumn[] dataColumns
         {
             get => new DataColumn[]{
                 new DataColumn {
