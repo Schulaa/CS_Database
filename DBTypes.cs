@@ -3,6 +3,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Datenbank
 {
@@ -166,11 +167,11 @@ namespace Datenbank
     }
     class SecurityObject : DBObject
     {
-        public SecurityObject(string pwd)
-        {
-            this.password = pwd;
+        public void setPassword(string pwd) {
+            this.hashedPwd = SecurePasswordHasher.Hash(pwd);
         }
-        public string password { get; set; }
+        public string hashedPwd{get;set;}
+        
         public static string CollectionName
         {
             get => "security";
@@ -185,52 +186,35 @@ namespace Datenbank
                     }
             };
         }
-
-
         DataRow DBObject.getAsRow(DataRow row)
         {
-            row[dataColumns[0].ColumnName] = this.password;
+            row[dataColumns[0].ColumnName] = this.hashedPwd;
             return row;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is SecurityObject)
-            {
-                SecurityObject so = (SecurityObject)obj;
-
-                if (so.password == this.password)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(password);
         }
 
         public object[] getAsObjArr()
         {
-            return new object[] { this.password };
+            return new object[] { this.hashedPwd };
         }
 
         public void setAsObjArr(object[] val)
         {
-            this.password = (string)val[0];
+            this.hashedPwd = (string)val[0];
+        }
+        public bool checkPwd(string pwd)
+        {
+            return SecurePasswordHasher.Verify(pwd,this.hashedPwd);
         }
     }
     class PersonAccountInfo : DBObject
     {
-        private int personId;
-        public int mandateId;
-        public string iban;
-        public string bic;
-        public string personName;
-        public string bankName;
-        public DateTime mandateDate;
+        public int personId{get;set;}
+        public int mandateId{get;set;}
+        public string iban{get;set;}
+        public string bic{get;set;}
+        public string personName{get;set;}
+        public string bankName{get;set;}
+        public DateTime mandateDate{get;set;}
         public static string CollectionName
         {
             get => "accountInfo";

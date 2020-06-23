@@ -25,10 +25,12 @@ namespace Datenbank
                 }
                 else
                 {
+                    // var dbPwd = rec.Query().First();
+                    // rec.EnsureIndex(x=>x.hashedPwd);
+                    var dbPwd = rec.Query()
+                        .First();
 
-                    List<SecurityObject> recs = new List<SecurityObject>(rec.FindAll());
-
-                    if (recs[0].Equals(new SecurityObject(entry)))
+                    if (dbPwd.checkPwd(entry))
                     {
                         unlocked = true;
                     }
@@ -46,8 +48,9 @@ namespace Datenbank
             using (var db = new LiteDatabase(dbSec))
             {
                 var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
-                rec.DeleteAll();
-                SecurityObject dmy = new SecurityObject(pwd);
+                // rec.DeleteAll();
+                SecurityObject dmy = new SecurityObject();
+                dmy.setPassword(pwd);
                 rec.Insert(dmy);
             }
         }
@@ -136,7 +139,7 @@ namespace Datenbank
 
         #endregion
 
-        #region Person filters
+        #region Read Person (filters)
         public static DataSet PersonFilterMemberType(Person.type memberType)
         {
             DataSet result = new DataSet();
@@ -262,15 +265,38 @@ namespace Datenbank
             using (var db = new LiteDatabase(dbName))
             {
                 var col = db.GetCollection<Person>(Person.CollectionName);
-                col.EnsureIndex(x=>x.id);
+                col.EnsureIndex(x => x.id);
                 Person person = col.Query()
-                    .OrderByDescending(x=>x.id)
-                    .FirstOrDefault();        
-                
-                return person is null ? 1 : person.id +1;            
+                    .OrderByDescending(x => x.id)
+                    .FirstOrDefault();
+
+                return person is null ? 1 : person.id + 1;
             }
         }
-        
+
+        #endregion
+
+        #region Read PersonAccountInfo
+        public static PersonAccountInfo getPAIforPerson(Person p)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
+                col.EnsureIndex(x => x.personId);
+                try
+                {
+                    var query = col.Query()
+                                .Where(x => (x.personId == p.id))
+                                .First();
+                    return query;
+                }
+                catch (System.InvalidOperationException)
+                {
+                    return null;
+                }
+
+            }
+        }
         #endregion
 
         #region Write Database (Person)
@@ -284,7 +310,6 @@ namespace Datenbank
 
             }
         }
-
         public static void DeletePerson(Person person1)
         {
             using (var db = new LiteDatabase(dbName))
@@ -296,12 +321,37 @@ namespace Datenbank
 
         public static Person UpdateIdPerson(Person person1, int newId)
         {
+            UpdateIdPersonAccountInfo(person1, newId);
             DeletePerson(person1);
             person1.id = newId;
             UpsertPerson(person1);
             return person1;
         }
         #endregion
+
+        #region Write Database (Account Info)
+        public static void UpsertPersonAccountInfo(PersonAccountInfo personAccountInfo)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
+                col.Upsert(personAccountInfo);
+            }
+        }
+        public static void UpdateIdPersonAccountInfo(Person person, int newId)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                PersonAccountInfo pai = getPAIforPerson(person);
+                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
+                col.EnsureIndex(x => x.personId);
+                col.Delete(pai.personId);
+                pai.personId = newId;
+                col.Insert(pai);
+            }
+        }
+        #endregion
+
     }
     enum mode
     {

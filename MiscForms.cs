@@ -37,10 +37,11 @@ namespace Datenbank
 
     class AccountInfoCard : Form
     {
-        public AccountInfoCard(Person p)
+        public AccountInfoCard(PersonAccountInfo pai)
         {
-            this.Text = "Kontoinformationen " + p.firstName + " " + p.lastName;
-            
+            this.Text = "Kontoinformationen " + pai.personName;
+            this.WindowState = FormWindowState.Maximized;
+            this.Controls.AddRange(ControlLists.accountInfoCardPage(this,pai));
         }
     }
 }

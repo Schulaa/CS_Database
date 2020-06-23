@@ -19,6 +19,7 @@ namespace Datenbank
             Application.SetCompatibleTextRenderingDefault(false);
 
             bool tryAgain = true;
+            
             while (tryAgain)
             {
                 if (new SecurityForm().ShowDialog() == DialogResult.OK)
