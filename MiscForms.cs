@@ -30,7 +30,9 @@ namespace Datenbank
         {
             this.Text = "Mitgliederkarte " + p.firstName + " " + p.lastName;
             this.WindowState = FormWindowState.Maximized;
-            this.Controls.AddRange(ControlLists.memberCardPage(this, p));
+            this.Controls.AddRange(GUIElements.GetCardPageControls(p));
+            this.Controls.AddRange(GUIElements.GetCardPageButtons(p,this));
+            
         }
 
     }
@@ -41,7 +43,8 @@ namespace Datenbank
         {
             this.Text = "Kontoinformationen " + pai.personName;
             this.WindowState = FormWindowState.Maximized;
-            this.Controls.AddRange(ControlLists.accountInfoCardPage(this,pai));
+            this.Controls.AddRange(GUIElements.GetCardPageButtons(pai,this));
+            this.Controls.AddRange(GUIElements.GetCardPageControls(pai));
         }
     }
 }

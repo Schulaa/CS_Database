@@ -18,7 +18,8 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbSec))
             {
-                var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
+                SecurityObject so = new SecurityObject();
+                var rec = db.GetCollection<SecurityObject>(so.CollectionName);
                 if (rec.Count() == 0)
                 {
                     throw new IndexOutOfRangeException("No PW set");
@@ -26,7 +27,7 @@ namespace Datenbank
                 else
                 {
                     // var dbPwd = rec.Query().First();
-                    // rec.EnsureIndex(x=>x.hashedPwd);
+                    rec.EnsureIndex(x=>x.hashedPwd);
                     var dbPwd = rec.Query()
                         .First();
 
@@ -47,7 +48,8 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbSec))
             {
-                var rec = db.GetCollection<SecurityObject>(SecurityObject.CollectionName);
+                SecurityObject so = new SecurityObject();
+                var rec = db.GetCollection<SecurityObject>(so.CollectionName);
                 // rec.DeleteAll();
                 SecurityObject dmy = new SecurityObject();
                 dmy.setPassword(pwd);
@@ -67,7 +69,7 @@ namespace Datenbank
                         //person:
                         if (bObject is Person)
                         {
-                            var rec = db.GetCollection<Person>(Person.CollectionName);
+                            var rec = db.GetCollection<Person>(bObject.CollectionName);
                             rec.Insert((Person)bObject);
                         }
 
@@ -89,11 +91,11 @@ namespace Datenbank
             {
                 if (dBObject is Person)
                 {
-                    table = new DataTable(Person.CollectionName);
+                    table = new DataTable(dBObject.CollectionName);
 
-                    table.Columns.AddRange(Person.dataColumns);
+                    table.Columns.AddRange(dBObject.dataColumns);
 
-                    foreach (DataColumn dmyDc in Person.dataColumns)
+                    foreach (DataColumn dmyDc in dBObject.dataColumns)
                     {
                         if (dmyDc.Unique)
                         {
@@ -106,7 +108,7 @@ namespace Datenbank
 
                     if (nameFilter == "")
                     {
-                        var col = db.GetCollection<Person>(Person.CollectionName);
+                        var col = db.GetCollection<Person>(dBObject.CollectionName);
                         var data = col.FindAll();
                         foreach (Person person in data)
                         {
@@ -117,7 +119,7 @@ namespace Datenbank
                     }
                     else
                     {
-                        var col = db.GetCollection<Person>(Person.CollectionName);
+                        var col = db.GetCollection<Person>(dBObject.CollectionName);
                         col.EnsureIndex(x => x.firstName);
                         var result = col.Query()
                             .Where(x => x.firstName.Contains(nameFilter) || x.lastName.Contains(nameFilter))
@@ -149,9 +151,10 @@ namespace Datenbank
 
             using (var db = new LiteDatabase(dbName))
             {
-                table = new DataTable(Person.CollectionName);
-                table.Columns.AddRange(Person.dataColumns);
-                foreach (DataColumn dmyDc in Person.dataColumns)
+                Person pers =new Person();
+                table = new DataTable(pers.CollectionName);
+                table.Columns.AddRange(pers.dataColumns);
+                foreach (DataColumn dmyDc in pers.dataColumns)
                 {
                     if (dmyDc.Unique)
                     {
@@ -162,7 +165,7 @@ namespace Datenbank
                 }
                 result.Tables.Add(table);
 
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.EnsureIndex(x => x.memberType);
                 var query = col.Query()
                     .Where(x => x.memberType == memberType)
@@ -182,12 +185,13 @@ namespace Datenbank
             DataTable table;
             DataColumn[] PrimaryKeyCols = new DataColumn[1];
             DataRow row;
+            Person pers = new Person();
 
             using (var db = new LiteDatabase(dbName))
             {
-                table = new DataTable(Person.CollectionName);
-                table.Columns.AddRange(Person.dataColumns);
-                foreach (DataColumn dmyDc in Person.dataColumns)
+                table = new DataTable(pers.CollectionName);
+                table.Columns.AddRange(pers.dataColumns);
+                foreach (DataColumn dmyDc in pers.dataColumns)
                 {
                     if (dmyDc.Unique)
                     {
@@ -198,7 +202,7 @@ namespace Datenbank
                 }
                 result.Tables.Add(table);
 
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.EnsureIndex(x => x.pmtType);
                 var query = col.Query()
                     .Where(x => x.pmtType == pmtType)
@@ -216,7 +220,8 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                Person pers = new Person();
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 var res = col.Query()
                     .Where(x => x.id == id);
                 return res.First();
@@ -224,17 +229,18 @@ namespace Datenbank
         }
         public static DataSet GetPersonDSById(int id)
         {
+            Person pers = new Person();
             DataSet result = new DataSet();
-            result.DataSetName = Person.CollectionName;
+            result.DataSetName = pers.CollectionName;
             DataTable table;
             DataColumn[] PrimaryKeyCols = new DataColumn[1];
             DataRow row;
 
             using (var db = new LiteDatabase(dbName))
             {
-                table = new DataTable(Person.CollectionName);
-                table.Columns.AddRange(Person.dataColumns);
-                foreach (DataColumn dmyDc in Person.dataColumns)
+                table = new DataTable(pers.CollectionName);
+                table.Columns.AddRange(pers.dataColumns);
+                foreach (DataColumn dmyDc in pers.dataColumns)
                 {
                     if (dmyDc.Unique)
                     {
@@ -245,7 +251,7 @@ namespace Datenbank
                 }
                 result.Tables.Add(table);
 
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.EnsureIndex(x => x.id);
                 var query = col.Query()
                     .Where(x => x.id == id)
@@ -264,7 +270,8 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                Person pers = new Person();
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.EnsureIndex(x => x.id);
                 Person person = col.Query()
                     .OrderByDescending(x => x.id)
@@ -281,12 +288,13 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
-                col.EnsureIndex(x => x.personId);
+                PersonAccountInfo pai = new PersonAccountInfo();
+                var col = db.GetCollection<PersonAccountInfo>(pai.CollectionName);
+                col.EnsureIndex(x => x.id);
                 try
                 {
                     var query = col.Query()
-                                .Where(x => (x.personId == p.id))
+                                .Where(x => (x.id == p.id))
                                 .First();
                     return query;
                 }
@@ -304,7 +312,8 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                Person pers = new Person();
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.Upsert(person1);
                 // col.Update(person1);
 
@@ -312,9 +321,10 @@ namespace Datenbank
         }
         public static void DeletePerson(Person person1)
         {
+            Person pers = new Person();
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<Person>(Person.CollectionName);
+                var col = db.GetCollection<Person>(pers.CollectionName);
                 col.Delete(person1.id);
             }
         }
@@ -334,7 +344,7 @@ namespace Datenbank
         {
             using (var db = new LiteDatabase(dbName))
             {
-                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
+                var col = db.GetCollection<PersonAccountInfo>(personAccountInfo.CollectionName);
                 col.Upsert(personAccountInfo);
             }
         }
@@ -343,10 +353,10 @@ namespace Datenbank
             using (var db = new LiteDatabase(dbName))
             {
                 PersonAccountInfo pai = getPAIforPerson(person);
-                var col = db.GetCollection<PersonAccountInfo>(PersonAccountInfo.CollectionName);
-                col.EnsureIndex(x => x.personId);
-                col.Delete(pai.personId);
-                pai.personId = newId;
+                var col = db.GetCollection<PersonAccountInfo>(pai.CollectionName);
+                col.EnsureIndex(x => x.id);
+                col.Delete(pai.id);
+                pai.id = newId;
                 col.Insert(pai);
             }
         }

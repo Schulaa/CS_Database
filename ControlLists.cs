@@ -9,6 +9,7 @@ namespace Datenbank
 {
     class ControlLists
     {
+        
         #region MainPage
         public static Control[] indexPage(Form form1)
         {
@@ -47,6 +48,7 @@ namespace Datenbank
         #region MemberPages
         public static Control[] memberListPage(Form form1)
         {
+            Person pers = new Person();
             List<Control> controls = new List<Control>();
             Person dmyPers = new Person();
             #region SearchBox
@@ -181,13 +183,12 @@ namespace Datenbank
             }
             void deleteMember(Object sender, EventArgs e)
             {
+                pers = new Person();
                 int rowId = dgv.SelectedCells[0].RowIndex;
                 if (rowId >= 0)
                 {
-                    var query =
-                        from flds in Person.dataColumns
-                        where (flds.Unique == true)
-                        select flds.ColumnName;
+                    var query = pers.dataColumns.Where(x=>x.Unique==true).Select(x=>x.ColumnName);
+
 
                     var id = dgv.Rows[rowId].Cells[query.First()].Value;
                     if (MessageBox.Show("Sind Sie sicher, dass Sie das Mitglied löschen möchten?", "Löschen", MessageBoxButtons.YesNo, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button2, MessageBoxOptions.DefaultDesktopOnly, false) == DialogResult.Yes)
@@ -234,12 +235,13 @@ namespace Datenbank
             }
             void clickTableCont(object sender, DataGridViewCellEventArgs e)
             {
+                pers = new Person();
                 if (e.RowIndex >= 0)
                 {
                     DataGridView dmyDgv = (DataGridView)sender;
 
                     var query =
-                        from flds in Person.dataColumns
+                        from flds in pers.dataColumns
                         where (flds.Unique == true)
                         select flds.ColumnName;
 
@@ -261,343 +263,343 @@ namespace Datenbank
             return controls.ToArray();
         }
 
-        public static Control[] memberCardPage(Form form1, Person person)
-        {
-            List<Control> controls = new List<Control>();
-            DataColumn[] fields = person.dataColumns;
+        // public static Control[] memberCardPage(Form form1, Person person)
+        // {
+        //     List<Control> controls = new List<Control>();
+        //     DataColumn[] fields = person.dataColumns;
 
-            object[] data = person.getAsObjArr();
-            int startHeight = 50;
-            int startLeft = 20;
-            Size defSize = new Size(250, 80);
-            int fieldsPerCol = fields.Count() / 2;
-            for (int i = 0; i < fields.Count(); i++)
-            {
-                Label lbl = new Label();
-                lbl.Text = fields[i].ColumnName;
-                lbl.Size = defSize;
+        //     object[] data = person.getAsObjArr();
+        //     int startHeight = 50;
+        //     int startLeft = 20;
+        //     Size defSize = new Size(250, 80);
+        //     int fieldsPerCol = fields.Count() / 2;
+        //     for (int i = 0; i < fields.Count(); i++)
+        //     {
+        //         Label lbl = new Label();
+        //         lbl.Text = fields[i].ColumnName;
+        //         lbl.Size = defSize;
 
-                lbl.Top = startHeight + (i % fieldsPerCol) * (lbl.Size.Height) + 20;
-                lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + defSize.Width * 2 + 50);
+        //         lbl.Top = startHeight + (i % fieldsPerCol) * (lbl.Size.Height) + 20;
+        //         lbl.Left = (i < fieldsPerCol) ? startLeft : (startLeft + defSize.Width * 2 + 50);
 
-                if (fields[i].DataType == typeof(Person.type))
-                {
-                    ComboBox cbox = new ComboBox();
-                    cbox.DropDownStyle = ComboBoxStyle.DropDownList;
-                    foreach (var item in DBObject.GetEnumList<Person.type>())
-                    {
-                        cbox.Items.Add(item);
-                    }
-                    if (i < data.Length && data[i] != null)
-                    {
-                        cbox.SelectedItem = data[i];
-                    }
-                    else
-                    {
-                        cbox.Text = Person.type.Left.ToString();
-                    }
-                    setControlBounds(cbox);
-                    controls.Add(cbox);
-                }
-                else if (fields[i].DataType == typeof(Person.paymentType))
-                {
-                    ComboBox cbox = new ComboBox();
-                    cbox.DropDownStyle = ComboBoxStyle.DropDownList;
+        //         if (fields[i].DataType == typeof(Person.type))
+        //         {
+        //             ComboBox cbox = new ComboBox();
+        //             cbox.DropDownStyle = ComboBoxStyle.DropDownList;
+        //             foreach (var item in DBObject.GetEnumList<Person.type>())
+        //             {
+        //                 cbox.Items.Add(item);
+        //             }
+        //             if (i < data.Length && data[i] != null)
+        //             {
+        //                 cbox.SelectedItem = data[i];
+        //             }
+        //             else
+        //             {
+        //                 cbox.Text = Person.type.Left.ToString();
+        //             }
+        //             setControlBounds(cbox);
+        //             controls.Add(cbox);
+        //         }
+        //         else if (fields[i].DataType == typeof(Person.paymentType))
+        //         {
+        //             ComboBox cbox = new ComboBox();
+        //             cbox.DropDownStyle = ComboBoxStyle.DropDownList;
 
-                    foreach (var item in DBObject.GetEnumList<Person.paymentType>())
-                    {
-                        cbox.Items.Add(item);
-                    }
-                    if (i < data.Length && data[i] != null)
-                    {
-                        cbox.SelectedItem = data[i];
-                    }
-                    else
-                    {
-                        cbox.Text = Person.paymentType.None.ToString();
-                    }
-                    setControlBounds(cbox);
-                    controls.Add(cbox);
+        //             foreach (var item in DBObject.GetEnumList<Person.paymentType>())
+        //             {
+        //                 cbox.Items.Add(item);
+        //             }
+        //             if (i < data.Length && data[i] != null)
+        //             {
+        //                 cbox.SelectedItem = data[i];
+        //             }
+        //             else
+        //             {
+        //                 cbox.Text = Person.paymentType.None.ToString();
+        //             }
+        //             setControlBounds(cbox);
+        //             controls.Add(cbox);
 
-                    Button btn = new Button();
-                    btn.Image = Image.FromFile("./img/folder_contacts_smol.png");
-                    btn.Height = cbox.Size.Height + 5;
-                    btn.Width = btn.Height + 5;
-                    btn.Top = cbox.Top;
-                    btn.Left = cbox.Left + cbox.Size.Width + 10;
-                    btn.Click += new EventHandler(paiBtnClicked);
-                    void paiBtnClicked(object sender, EventArgs e)
-                    {
-                        PersonAccountInfo pai = DBCon.getPAIforPerson(person);
-                        if (pai == null)
-                        {
-                            pai = new PersonAccountInfo();
-                            pai.personId = person.id;
-                            pai.personName = person.lastName + ", " + person.firstName;
-                            pai.mandateId = person.id;
-                            DBCon.UpsertPersonAccountInfo(pai);
-                            AccountInfoCard aic = new AccountInfoCard(pai);
-                            aic.ShowDialog();
-                        }
-                        else
-                        {
-                            AccountInfoCard aic = new AccountInfoCard(pai);
-                            aic.ShowDialog();
-                        }
-                    }
-                    controls.Add(btn);
+        //             Button btn = new Button();
+        //             btn.Image = Image.FromFile("./img/folder_contacts_smol.png");
+        //             btn.Height = cbox.Size.Height + 5;
+        //             btn.Width = btn.Height + 5;
+        //             btn.Top = cbox.Top;
+        //             btn.Left = cbox.Left + cbox.Size.Width + 10;
+        //             btn.Click += new EventHandler(paiBtnClicked);
+        //             void paiBtnClicked(object sender, EventArgs e)
+        //             {
+        //                 PersonAccountInfo pai = DBCon.getPAIforPerson(person);
+        //                 if (pai == null)
+        //                 {
+        //                     pai = new PersonAccountInfo();
+        //                     pai.personId = person.id;
+        //                     pai.personName = person.lastName + ", " + person.firstName;
+        //                     pai.mandateId = person.id;
+        //                     DBCon.UpsertPersonAccountInfo(pai);
+        //                     AccountInfoCard aic = new AccountInfoCard(pai);
+        //                     aic.ShowDialog();
+        //                 }
+        //                 else
+        //                 {
+        //                     AccountInfoCard aic = new AccountInfoCard(pai);
+        //                     aic.ShowDialog();
+        //                 }
+        //             }
+        //             controls.Add(btn);
 
-                }
-                else if (fields[i].DataType == typeof(DateTime))
-                {
-                    DateTimePicker dbox = new DateTimePicker();
-                    dbox.Format = DateTimePickerFormat.Short;
+        //         }
+        //         else if (fields[i].DataType == typeof(DateTime))
+        //         {
+        //             DateTimePicker dbox = new DateTimePicker();
+        //             dbox.Format = DateTimePickerFormat.Short;
 
-                    try
-                    {
-                        dbox.Value = (DateTime)data[i];
-                    }
-                    catch (System.ArgumentOutOfRangeException)
-                    {
-                        // dbox.Enabled = false;
-                        dbox.Format = DateTimePickerFormat.Custom;
-                        dbox.CustomFormat = " ";
-                        dbox.Validated += new EventHandler(dBoxValidated);
-                        dbox.MouseDown += new MouseEventHandler(dBoxValidated);
+        //             try
+        //             {
+        //                 dbox.Value = (DateTime)data[i];
+        //             }
+        //             catch (System.ArgumentOutOfRangeException)
+        //             {
+        //                 // dbox.Enabled = false;
+        //                 dbox.Format = DateTimePickerFormat.Custom;
+        //                 dbox.CustomFormat = " ";
+        //                 dbox.Validated += new EventHandler(dBoxValidated);
+        //                 dbox.MouseDown += new MouseEventHandler(dBoxValidated);
 
-                        void dBoxValidated(object sender, EventArgs e)
-                        {
-                            dbox.Format = DateTimePickerFormat.Short;
-                        }
-                    }
+        //                 void dBoxValidated(object sender, EventArgs e)
+        //                 {
+        //                     dbox.Format = DateTimePickerFormat.Short;
+        //                 }
+        //             }
 
-                    setControlBounds(dbox);
-                    controls.Add(dbox);
-                }
-                else
-                {
-                    TextBox tbox = new TextBox();
-                    if (i < data.Length && data[i] != null)
-                    {
-                        tbox.Text = data[i].ToString();
-                    }
-                    setControlBounds(tbox);
-                    controls.Add(tbox);
+        //             setControlBounds(dbox);
+        //             controls.Add(dbox);
+        //         }
+        //         else
+        //         {
+        //             TextBox tbox = new TextBox();
+        //             if (i < data.Length && data[i] != null)
+        //             {
+        //                 tbox.Text = data[i].ToString();
+        //             }
+        //             setControlBounds(tbox);
+        //             controls.Add(tbox);
 
-                }
+        //         }
 
 
-                void setControlBounds(Control control)
-                {
-                    control.Top = lbl.Top;
-                    control.Left = lbl.Left + lbl.Size.Width + 10;
-                    control.Size = defSize;
-                    control.Name = lbl.Text;
+        //         void setControlBounds(Control control)
+        //         {
+        //             control.Top = lbl.Top;
+        //             control.Left = lbl.Left + lbl.Size.Width + 10;
+        //             control.Size = defSize;
+        //             control.Name = lbl.Text;
 
-                    if (control is TextBox)
-                    {
-                        control.TextChanged += new EventHandler(ctrlTextChanged);
-                    }
-                    else if ((control is ComboBox))
-                    {
-                        ComboBox cb = (ComboBox)control;
-                        cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
-                    }
-                    else if (control is DateTimePicker)
-                    {
-                        DateTimePicker db = (DateTimePicker)control;
-                        db.ValueChanged += new EventHandler(ctrlValidated);
-                    }
-                    void ctrlTextChanged(object sender, EventArgs e)
-                    {
-                        Control ctrl = (Control)sender;
-                        ctrl.Validated += new EventHandler(ctrlValidated);
-                    }
+        //             if (control is TextBox)
+        //             {
+        //                 control.TextChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             else if ((control is ComboBox))
+        //             {
+        //                 ComboBox cb = (ComboBox)control;
+        //                 cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             else if (control is DateTimePicker)
+        //             {
+        //                 DateTimePicker db = (DateTimePicker)control;
+        //                 db.ValueChanged += new EventHandler(ctrlValidated);
+        //             }
+        //             void ctrlTextChanged(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
+        //                 ctrl.Validated += new EventHandler(ctrlValidated);
+        //             }
 
-                    void ctrlValidated(object sender, EventArgs e)
-                    {
-                        Control ctrl = (Control)sender;
-                        int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
-                        if (ctrl is ComboBox)
-                        {
-                            Enum.TryParse(fields[fieldId].DataType, ctrl.Text, out data[fieldId]);
-                        }
-                        else if (ctrl is DateTimePicker)
-                        {
-                            DateTime date;
-                            if (DateTime.TryParse(ctrl.Text, out date))
-                            {
-                                data[fieldId] = date;
-                            }
-                        }
-                        else
-                        {
+        //             void ctrlValidated(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
+        //                 int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
+        //                 if (ctrl is ComboBox)
+        //                 {
+        //                     Enum.TryParse(fields[fieldId].DataType, ctrl.Text, out data[fieldId]);
+        //                 }
+        //                 else if (ctrl is DateTimePicker)
+        //                 {
+        //                     DateTime date;
+        //                     if (DateTime.TryParse(ctrl.Text, out date))
+        //                     {
+        //                         data[fieldId] = date;
+        //                     }
+        //                 }
+        //                 else
+        //                 {
 
-                            if (fields[fieldId].DataType == typeof(int))
-                            {
-                                int num;
-                                if (int.TryParse(ctrl.Text, out num))
-                                {
-                                    if (fields[fieldId].Unique && person != null)
-                                    {
-                                        System.Windows.Forms.MessageBox.Show("Nach einer Primärschlüsseländerung muss die aktuelle Seite geschlossen werden!", "Meldung");
-                                        person = DBCon.UpdateIdPerson(person, num);
-                                        data[fieldId] = num;
-                                        control.Parent.Dispose();
-                                    }
-                                    else
-                                    {
-                                        data[fieldId] = num;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                data[fieldId] = control.Text;
-                            }
-                        }
-                        person.setAsObjArr(data);
-                        DBCon.UpsertPerson(person);
-                    }
-                }
+        //                     if (fields[fieldId].DataType == typeof(int))
+        //                     {
+        //                         int num;
+        //                         if (int.TryParse(ctrl.Text, out num))
+        //                         {
+        //                             if (fields[fieldId].Unique && person != null)
+        //                             {
+        //                                 System.Windows.Forms.MessageBox.Show("Nach einer Primärschlüsseländerung muss die aktuelle Seite geschlossen werden!", "Meldung");
+        //                                 person = DBCon.UpdateIdPerson(person, num);
+        //                                 data[fieldId] = num;
+        //                                 control.Parent.Dispose();
+        //                             }
+        //                             else
+        //                             {
+        //                                 data[fieldId] = num;
+        //                             }
+        //                         }
+        //                     }
+        //                     else
+        //                     {
+        //                         data[fieldId] = control.Text;
+        //                     }
+        //                 }
+        //                 person.setAsObjArr(data);
+        //                 DBCon.UpsertPerson(person);
+        //             }
+        //         }
 
-                controls.Add(lbl);
-            }
+        //         controls.Add(lbl);
+        //     }
 
-            return controls.ToArray();
-        }
+        //     return controls.ToArray();
+        // }
 
 
         #endregion
 
-        #region AccountInfo
-        public static Control[] accountInfoCardPage(Form form, PersonAccountInfo ai)
-        {
-            List<Control> controls = new List<Control>();
-            DataColumn[] fields = PersonAccountInfo.dataColumns;
-            object[] data = ai.getAsObjArr();
-            int startHeight = 50;
-            int startLeft = 20;
-            Size defSize = new Size(250, 80);
-            for (int i = 0; i < fields.Length; i++)
-            {
-                Label lbl = new Label();
-                lbl.Text = fields[i].ColumnName;
-                lbl.Size = defSize;
-                lbl.Top = startHeight + (i * lbl.Size.Height) + 10;
-                lbl.Left = startLeft;
+        // #region AccountInfo
+        // public static Control[] accountInfoCardPage(Form form, PersonAccountInfo ai)
+        // {
+        //     List<Control> controls = new List<Control>();
+        //     DataColumn[] fields = PersonAccountInfo.dataColumns;
+        //     object[] data = ai.getAsObjArr();
+        //     int startHeight = 50;
+        //     int startLeft = 20;
+        //     Size defSize = new Size(250, 80);
+        //     for (int i = 0; i < fields.Length; i++)
+        //     {
+        //         Label lbl = new Label();
+        //         lbl.Text = fields[i].ColumnName;
+        //         lbl.Size = defSize;
+        //         lbl.Top = startHeight + (i * lbl.Size.Height) + 10;
+        //         lbl.Left = startLeft;
 
-                if (fields[i].DataType == typeof(DateTime))
-                {
-                    DateTimePicker dbox = new DateTimePicker();
-                    dbox.Format = DateTimePickerFormat.Short;
+        //         if (fields[i].DataType == typeof(DateTime))
+        //         {
+        //             DateTimePicker dbox = new DateTimePicker();
+        //             dbox.Format = DateTimePickerFormat.Short;
 
-                    try
-                    {
-                        dbox.Value = (DateTime)data[i];
-                    }
-                    catch (System.ArgumentOutOfRangeException)
-                    {
-                        dbox.Format = DateTimePickerFormat.Custom;
-                        dbox.CustomFormat = " ";
-                        dbox.Validated += new EventHandler(dBoxValidated);
-                        dbox.MouseDown += new MouseEventHandler(dBoxValidated);
-                         void dBoxValidated(object sender, EventArgs e)
-                        {
-                            dbox.Format = DateTimePickerFormat.Short;
-                        }
-                    }
-                    setControlBounds(dbox);
-                    controls.Add(dbox);
-                }
-                else
-                {
-                    TextBox tbox = new TextBox();
-                    if (i < data.Length && data[i] != null)
-                    {
-                        tbox.Text = data[i].ToString();
-                    }
-                    setControlBounds(tbox);
-                    controls.Add(tbox);
+        //             try
+        //             {
+        //                 dbox.Value = (DateTime)data[i];
+        //             }
+        //             catch (System.ArgumentOutOfRangeException)
+        //             {
+        //                 dbox.Format = DateTimePickerFormat.Custom;
+        //                 dbox.CustomFormat = " ";
+        //                 dbox.Validated += new EventHandler(dBoxValidated);
+        //                 dbox.MouseDown += new MouseEventHandler(dBoxValidated);
+        //                  void dBoxValidated(object sender, EventArgs e)
+        //                 {
+        //                     dbox.Format = DateTimePickerFormat.Short;
+        //                 }
+        //             }
+        //             setControlBounds(dbox);
+        //             controls.Add(dbox);
+        //         }
+        //         else
+        //         {
+        //             TextBox tbox = new TextBox();
+        //             if (i < data.Length && data[i] != null)
+        //             {
+        //                 tbox.Text = data[i].ToString();
+        //             }
+        //             setControlBounds(tbox);
+        //             controls.Add(tbox);
 
 
-                }
-                void setControlBounds(Control control)
-                {
-                    control.Top = lbl.Top;
-                    control.Left = lbl.Left + lbl.Size.Width + 10;
-                    control.Size = defSize;
-                    control.Name = lbl.Text;
+        //         }
+        //         void setControlBounds(Control control)
+        //         {
+        //             control.Top = lbl.Top;
+        //             control.Left = lbl.Left + lbl.Size.Width + 10;
+        //             control.Size = defSize;
+        //             control.Name = lbl.Text;
 
-                    if (control is TextBox)
-                    {
-                        control.TextChanged += new EventHandler(ctrlTextChanged);
-                    }
-                    else if (control is ComboBox)
-                    {
-                        ComboBox cb = (ComboBox)control;
-                        cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
-                    }
-                    else if (control is DateTimePicker)
-                    {
-                        DateTimePicker db = (DateTimePicker)control;
-                        db.ValueChanged += new EventHandler(ctrlValidated);
-                    }
+        //             if (control is TextBox)
+        //             {
+        //                 control.TextChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             else if (control is ComboBox)
+        //             {
+        //                 ComboBox cb = (ComboBox)control;
+        //                 cb.SelectedValueChanged += new EventHandler(ctrlTextChanged);
+        //             }
+        //             else if (control is DateTimePicker)
+        //             {
+        //                 DateTimePicker db = (DateTimePicker)control;
+        //                 db.ValueChanged += new EventHandler(ctrlValidated);
+        //             }
 
-                    void ctrlTextChanged(object sender, EventArgs e)
-                    {
-                        Control ctrl = (Control)sender;
-                        ctrl.Validated += new EventHandler(ctrlValidated);
-                    }
+        //             void ctrlTextChanged(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
+        //                 ctrl.Validated += new EventHandler(ctrlValidated);
+        //             }
 
-                    void ctrlValidated(object sender, EventArgs e)
-                    {
-                        Control ctrl = (Control)sender;
+        //             void ctrlValidated(object sender, EventArgs e)
+        //             {
+        //                 Control ctrl = (Control)sender;
 
-                        int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
-                        if (ctrl is DateTimePicker)
-                        {
-                            DateTime date;
-                            if (DateTime.TryParse(ctrl.Text, out date))
-                            {
-                                data[fieldId] = date;
-                            }
-                        }
-                        else
-                        {
+        //                 int fieldId = fields.ToList().IndexOf(fields.Where(x => x.ColumnName == ctrl.Name).First());
+        //                 if (ctrl is DateTimePicker)
+        //                 {
+        //                     DateTime date;
+        //                     if (DateTime.TryParse(ctrl.Text, out date))
+        //                     {
+        //                         data[fieldId] = date;
+        //                     }
+        //                 }
+        //                 else
+        //                 {
 
-                            if (fields[fieldId].DataType == typeof(int))
-                            {
-                                int num;
-                                if (int.TryParse(ctrl.Text, out num))
-                                {
-                                    if (fields[fieldId].Unique)
-                                    {
-                                        System.Windows.Forms.MessageBox.Show("Der Primärschlüssel kann nicht geändert werden!", "Meldung");
-                                        // person = DBCon.UpdateIdPerson(person, num);
-                                        // data[fieldId] = num;
-                                        // control.Parent.Dispose();
-                                    }
-                                    else
-                                    {
-                                        data[fieldId] = num;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                data[fieldId] = control.Text;
-                            }
-                        }
-                        ai.setAsObjArr(data);
-                        DBCon.UpsertPersonAccountInfo(ai);
-                    }
-                }
-                controls.Add(lbl);
-            }
-            return controls.ToArray();
-        }
-        #endregion
+        //                     if (fields[fieldId].DataType == typeof(int))
+        //                     {
+        //                         int num;
+        //                         if (int.TryParse(ctrl.Text, out num))
+        //                         {
+        //                             if (fields[fieldId].Unique)
+        //                             {
+        //                                 System.Windows.Forms.MessageBox.Show("Der Primärschlüssel kann nicht geändert werden!", "Meldung");
+        //                                 // person = DBCon.UpdateIdPerson(person, num);
+        //                                 // data[fieldId] = num;
+        //                                 // control.Parent.Dispose();
+        //                             }
+        //                             else
+        //                             {
+        //                                 data[fieldId] = num;
+        //                             }
+        //                         }
+        //                     }
+        //                     else
+        //                     {
+        //                         data[fieldId] = control.Text;
+        //                     }
+        //                 }
+        //                 ai.setAsObjArr(data);
+        //                 DBCon.UpsertPersonAccountInfo(ai);
+        //             }
+        //         }
+        //         controls.Add(lbl);
+        //     }
+        //     return controls.ToArray();
+        // }
+        // #endregion
 
     }
 }
