@@ -42,7 +42,7 @@ namespace Datenbank
                     {
                         cbox.Text = Person.type.Left.ToString();
                     }
-                    // setControlBounds(cbox);
+                    setControlBounds(cbox);
                     controls.Add(cbox);
                 }
                 else if (fields[i].DataType == typeof(Person.paymentType))
@@ -62,7 +62,7 @@ namespace Datenbank
                     {
                         cbox.Text = Person.paymentType.None.ToString();
                     }
-                    // setControlBounds(cbox);
+                    setControlBounds(cbox);
                     controls.Add(cbox);
 
                 }
@@ -200,17 +200,17 @@ namespace Datenbank
             {
                 //Delete:
                 captions.Add("Löschen..");
-                eventHandlers.Add(delegate (object sender, EventArgs e) { deleteMember(sender, e, src); });
+                eventHandlers.Add(delegate (object sender, EventArgs e) { EventHandling.deleteMember(sender, e, src); });
 
                 //Account Information:
                 captions.Add("Kontoinformationen..");
-                eventHandlers.Add(delegate (object sender, EventArgs e) { openAccountInfo(sender, e, src); });
+                eventHandlers.Add(delegate (object sender, EventArgs e) { EventHandling.openAccountInfo(sender, e, src); });
             }
             else if (src is PersonAccountInfo)
             {
                 //Delete:
                 captions.Add("Löschen..");
-                eventHandlers.Add(delegate (object sender, EventArgs e) { deleteAccountInfo(sender, e, src); });
+                eventHandlers.Add(delegate (object sender, EventArgs e) { EventHandling.deleteAccountInfo(sender, e, src); });
             }
             for (int i = 0; i < captions.Count; i++)
             {
@@ -233,20 +233,6 @@ namespace Datenbank
 
         #endregion
 
-        #region EventHandlers
-        private static void deleteMember(object sender, EventArgs eventArgs, DBObject src)
-        {
-
-        }
-        private static void openAccountInfo(object sender, EventArgs eventArgs, DBObject src)
-        {
-
-        }
-        private static void deleteAccountInfo(object sender, EventArgs eventArgs, DBObject src)
-        {
-
-        }
-        #endregion
 
     }
 }

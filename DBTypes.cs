@@ -17,7 +17,10 @@ namespace Datenbank
         public object[] getAsObjArr();
         public void setAsObjArr(object[] val);
 
-
+        public void Upsert();
+        public void Delete();
+        public DBObject UpdateId(int newId);
+        public DBObject FindById(int id);
         public static List<TEnum> GetEnumList<TEnum>() where TEnum : Enum
             => ((TEnum[])Enum.GetValues(typeof(TEnum))).ToList();
     }
@@ -69,6 +72,26 @@ namespace Datenbank
         public DataRow getAsRow(DataRow row)
         {
             throw new NotImplementedException();
+        }
+
+        public void Upsert()
+        {
+            DBOperations.Upsert<SecurityObject>(this);
+        }
+
+        public void Delete()
+        {
+            DBOperations.DeleteRecord<SecurityObject>(this);
+        }
+
+        public DBObject UpdateId(int newId)
+        {
+            return DBOperations.UpdatePrimaryKey<SecurityObject>(this,newId);
+        }
+
+        public DBObject FindById(int id)
+        {
+            return DBOperations.
         }
     }
  

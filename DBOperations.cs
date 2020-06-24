@@ -37,11 +37,21 @@ namespace Datenbank
                 var rec = col.Delete(obj.id);
             }
         }
-        public static void UpdatePrimaryKey<K>(DBObject oldObj, int newId)
+        public static DBObject UpdatePrimaryKey<K>(DBObject oldObj, int newId)
         {
             DeleteRecord<K>(oldObj);
             oldObj.id = newId;
             Upsert<K>(oldObj);
+            return oldObj;
+        }
+        public static DBObject GetRecById<K>(int id, DBObject obj)
+        {
+            using (var db = new LiteDatabase(dbName))
+            {
+                var col = db.GetCollection<K>(obj.CollectionName);
+                var query = col.Query()
+                            .Where(x=>x.)
+            }
         }
         public static DataSet GetDataSet<K>(DBObject obj)
         {

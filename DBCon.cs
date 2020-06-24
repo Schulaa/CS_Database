@@ -50,7 +50,7 @@ namespace Datenbank
             {
                 SecurityObject so = new SecurityObject();
                 var rec = db.GetCollection<SecurityObject>(so.CollectionName);
-                // rec.DeleteAll();
+                rec.DeleteAll();
                 SecurityObject dmy = new SecurityObject();
                 dmy.setPassword(pwd);
                 rec.Insert(dmy);
