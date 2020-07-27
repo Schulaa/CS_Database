@@ -1,10 +1,12 @@
 using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Datenbank
 {
-        class Person : DBObject
+    class Person : DBObject
     {
 
         public int id { get; set; }
@@ -135,6 +137,63 @@ namespace Datenbank
             this.entryDate = (DateTime)val[9];
             this.leftDate = (DateTime)val[10];
             this.comment = (string)val[11];
+        }
+
+        public void Upsert()
+        {
+            DBOperations.Upsert<Person>(this);
+        }
+
+        public void Delete()
+        {
+            PersonAccountInfo pai = new PersonAccountInfo();
+            try
+            {
+                pai = (PersonAccountInfo)pai.FindById(this.id);
+                pai.Delete();
+            }
+            catch (System.InvalidOperationException)
+            {
+
+            }
+            finally
+            {
+                DBOperations.DeleteRecord<Person>(this);
+            }
+        }
+
+        public DBObject UpdateId(int newId)
+        {
+            PersonAccountInfo pai = new PersonAccountInfo();
+            try
+            {
+                pai = (PersonAccountInfo)pai.FindById(this.id);
+                pai.UpdateId(newId);
+            }
+            catch (System.InvalidOperationException)
+            {
+
+            }
+            return DBOperations.UpdatePrimaryKey<Person>(this, newId);
+
+        }
+        public DBObject FindById(int id)
+        {
+            List<Person> lst = DBOperations.GetAllRecords<Person>(this);
+            return lst.Where(x => x.id == id).First();
+        }
+        public int GetNextId()
+        {
+            List<Person> lst = DBOperations.GetAllRecords<Person>(this);
+            try
+            {
+                int id = lst.OrderByDescending(x => x.id).Select(x => x.id).First();
+                return id;
+            }
+            catch (System.InvalidOperationException)
+            {
+                return 1;
+            }
         }
     }
 

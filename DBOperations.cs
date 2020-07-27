@@ -44,15 +44,6 @@ namespace Datenbank
             Upsert<K>(oldObj);
             return oldObj;
         }
-        public static DBObject GetRecById<K>(int id, DBObject obj)
-        {
-            using (var db = new LiteDatabase(dbName))
-            {
-                var col = db.GetCollection<K>(obj.CollectionName);
-                var query = col.Query()
-                            .Where(x=>x.)
-            }
-        }
         public static DataSet GetDataSet<K>(DBObject obj)
         {
             DataSet retVal = new DataSet();
@@ -72,7 +63,7 @@ namespace Datenbank
             foreach (DBObject item in GetAllRecords<K>(obj))
             {
                 row =table.NewRow();
-                obj.getAsRow(row);
+                item.getAsRow(row);
                 table.Rows.Add(row);
             }
             return retVal;

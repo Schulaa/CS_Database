@@ -7,12 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LiteDB;
 
 namespace Datenbank
 {
     public class SecurityForm : Form
     {
         TextBox tbox;
+        private static string dbSec = @"Sec.db";
+        public static bool unlocked;
+
         public SecurityForm()
         {
             this.CenterToParent();
@@ -24,7 +28,7 @@ namespace Datenbank
         }
         private void initSecurity()
         {
-            DBCon.unlocked = false;
+            unlocked = false;
             const string INITTEXT = "Willkommen in der Vereinsdatenbank 2020\nBitte geben Sie Ihr Passwort ein:";
             Label lbl = new Label();
             lbl.Text = INITTEXT;
@@ -84,7 +88,7 @@ namespace Datenbank
 
             try
             {
-                if (DBCon.checkPassword(firstEntry))
+                if (checkPassword(firstEntry))
                 {
                     this.DialogResult = DialogResult.OK;
                 }
@@ -103,9 +107,8 @@ namespace Datenbank
 
                     if (res == firstEntry)
                     {
-                        DBCon.setPassword(res);
+                        setPassword(res);
                     }
-
                 }
                 else
                 {
@@ -119,8 +122,6 @@ namespace Datenbank
             using (Form f = new Form())
             {
                 f.Text = caption;
-
-
                 Label lbl = new Label();
                 lbl.Text = text;
                 lbl.Size = lbl.PreferredSize;
@@ -193,6 +194,51 @@ namespace Datenbank
             }
             return response;
         }
+
+        #region Login Mgt
+        public static bool checkPassword(string entry)
+        {
+            using (var db = new LiteDatabase(dbSec))
+            {
+                SecurityObject so = new SecurityObject();
+                var rec = db.GetCollection<SecurityObject>(so.CollectionName);
+                if (rec.Count() == 0)
+                {
+                    throw new IndexOutOfRangeException("No PW set");
+                }
+                else
+                {
+                    rec.EnsureIndex(x => x.hashedPwd);
+                    var dbPwd = rec.Query()
+                        .First();
+
+                    if (dbPwd.checkPwd(entry))
+                    {
+                        unlocked = true;
+                    }
+                    else
+                    {
+                        unlocked = false;
+                    }
+                }
+            }
+            return unlocked;
+        }
+
+        public static void setPassword(string pwd)
+        {
+            using (var db = new LiteDatabase(dbSec))
+            {
+                SecurityObject so = new SecurityObject();
+                var rec = db.GetCollection<SecurityObject>(so.CollectionName);
+                rec.DeleteAll();
+                SecurityObject dmy = new SecurityObject();
+                dmy.setPassword(pwd);
+                rec.Insert(dmy);
+            }
+        }
+        #endregion
+
 
     }
 

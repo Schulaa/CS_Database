@@ -1,9 +1,11 @@
 using System;
 using System.Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Datenbank
 {
-       class PersonAccountInfo : DBObject
+    class PersonAccountInfo : DBObject
     {
         public int id { get; set; }
         public int mandateId { get; set; }
@@ -82,6 +84,26 @@ namespace Datenbank
             this.personName = (string)val[4];
             this.bankName = (string)val[5];
             this.mandateDate = (DateTime)val[6];
+        }
+
+        public DBObject UpdateId(int newId)
+        {
+            return DBOperations.UpdatePrimaryKey<PersonAccountInfo>(this,newId);
+        }
+
+        public void Upsert()
+        {
+            DBOperations.Upsert<PersonAccountInfo>(this);
+        }
+        public void Delete()
+        {
+            DBOperations.DeleteRecord<PersonAccountInfo>(this);
+        }
+
+        public DBObject FindById(int id)
+        {
+            List<PersonAccountInfo> lst = DBOperations.GetAllRecords<PersonAccountInfo>(this);
+            return lst.Where(x=>x.id==id).First();
         }
     }
 }

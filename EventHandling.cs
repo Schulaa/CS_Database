@@ -10,7 +10,7 @@ namespace Datenbank
     class EventHandling
     {
         #region Member
-        public static void deleteMember(object sender, EventArgs e, Person src)
+        public static void deleteMember(object sender, EventArgs e, DBObject src)
         {
 
         }
@@ -18,7 +18,7 @@ namespace Datenbank
         {
 
         }
-        public static void editMember(object sender, EventArgs e, Person src)
+        public static void editMember(object sender, EventArgs e, DBObject src)
         {
 
         }
@@ -26,7 +26,7 @@ namespace Datenbank
         #endregion
 
         #region Account Information
-        public static void openAccountInfo(object sender, EventArgs e, Person src)
+        public static void openAccountInfo(object sender, EventArgs e, DBObject src)
         {
 
         }
@@ -72,8 +72,7 @@ namespace Datenbank
                         {
                             //TODO:
                             System.Windows.Forms.MessageBox.Show("Nach einer Primärschlüsseländerung muss die aktuelle Seite geschlossen werden!", "Meldung");
-                            Type t = src.GetType();
-                            DBOperations.UpdatePrimaryKey<>(src,num);
+                            src = src.UpdateId(num);
                             data[fieldId] = num;
                             ctrl.Parent.Dispose();
                         }
@@ -89,8 +88,7 @@ namespace Datenbank
                 }
             }
             src.setAsObjArr(data);
-            //TODO:
-            // DBCon.UpsertPerson(person);
+            src.Upsert();
         }
     }
     #endregion

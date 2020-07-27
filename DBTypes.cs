@@ -11,7 +11,6 @@ namespace Datenbank
     {
         public int id { get; set; }
         public string CollectionName { get; }
-        // public static ColumnInfo[] columnInfos { get; }
         public DataColumn[] dataColumns { get; }
         public DataRow getAsRow(DataRow row);
         public object[] getAsObjArr();
@@ -91,7 +90,8 @@ namespace Datenbank
 
         public DBObject FindById(int id)
         {
-            return DBOperations.
+            List<SecurityObject> lst = DBOperations.GetAllRecords<SecurityObject>(this);
+            return lst.Where(x=>x.id == id).First();
         }
     }
  

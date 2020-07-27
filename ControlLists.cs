@@ -74,7 +74,7 @@ namespace Datenbank
             #region Table
 
             DataGridView dgv = new DataGridView();
-            dgv.DataSource = DBCon.GetDataSet(new Person());
+            dgv.DataSource = DBOperations.GetDataSet<Person>(new Person());
             dgv.DataMember = dmyPers.CollectionName;
             dgv.Height = form1.ClientSize.Height - form1.MainMenuStrip.Height - 20;
             dgv.Width = form1.ClientSize.Width - 100;
@@ -154,8 +154,8 @@ namespace Datenbank
             void addMember(Object sender, EventArgs e)
             {
                 Person p = new Person();
-                p.id = DBCon.GetNextPersonId();
-                DBCon.UpsertPerson(p);
+                p.id = p.GetNextId();
+                p.Upsert();
                 Control ctrl = (Control)sender;
                 MemberCard mc = new MemberCard(p);
                 mc.Deactivate += new EventHandler(onDisposed);
